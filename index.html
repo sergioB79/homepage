@@ -167,6 +167,19 @@
   const isTagEdge = l => (l.kind||"").startsWith('tag:');
   const byId = id => ALL_NODES.get(id);
   const idOf = v => (typeof v === 'object' && v) ? v.id : v;
+  const css = () => getComputedStyle(document.documentElement);
+  function hexToRgba(hex, a){
+    const m = (hex||'').trim().replace('#','');
+    if (m.length === 3){
+      const r = parseInt(m[0]+m[0],16), g=parseInt(m[1]+m[1],16), b=parseInt(m[2]+m[2],16);
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+    if (m.length >= 6){
+      const r = parseInt(m.slice(0,2),16), g=parseInt(m.slice(2,4),16), b=parseInt(m.slice(4,6),16);
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+    return `rgba(96,165,250, ${a})`;
+  }
 
   // ---- Modal helpers
   function showModal(title, html){
@@ -307,12 +320,16 @@
     }
     Graph.linkWidth(l => {
       const s = idOf(l.source), t = idOf(l.target);
-      return (id && (s===id || t===id)) ? 2.5 : 0.8;
+      return (id && (s===id || t===id)) ? 3.2 : 1.6;
     });
     Graph.linkColor(l => {
       const s = idOf(l.source), t = idOf(l.target);
-      const a = (id && (s===id || t===id)) ? 0.95 : 0.35;
-      return isTagEdge(l) ? `rgba(138,160,184,${a})` : `rgba(124,133,145,${a})`;
+      const accent = css().getPropertyValue('--accent').trim() || '#60a5fa';
+      const edgeBase = css().getPropertyValue('--edge').trim() || '#7c8591';
+      const hotA = 0.95, baseA = isTagEdge(l) ? 0.75 : 0.55;
+      const alpha = (id && (s===id || t===id)) ? hotA : baseA;
+      const base = isTagEdge(l) ? accent : edgeBase;
+      return hexToRgba(base, alpha);
     });
     Graph.nodeVal(n => (n.id===id || neigh.has(n.id)) ? 12 : (n.kind==='owner'?12:(n.kind==='category'?8:(n.kind==='subcategory'?6:4))));
   }
@@ -428,11 +445,21 @@
       .backgroundColor(getComputedStyle(document.documentElement).getPropertyValue('--bg').trim())
       .nodeColor(n => colorFor(n))
       .nodeLabel(n=>`$${n.label}`.replace('$','') + (n.tags?.length?`\n#${n.tags.join(' #')}`:''))
-      .linkColor(l=> isTagEdge(l) ? 'rgba(138,160,184,0.35)' : 'rgba(124,133,145,0.35)')
-      .linkOpacity(0.35)
-      .linkWidth(0.8)
-      .linkDirectionalParticles(l=> isTagEdge(l) && document.getElementById('sparks').checked ? 2 : 0)
-      .linkDirectionalParticleSpeed(0.005);
+      .linkColor(l=>{
+        const accent = css().getPropertyValue('--accent').trim() || '#60a5fa';
+        const edgeBase = css().getPropertyValue('--edge').trim() || '#7c8591';
+        const base = isTagEdge(l) ? accent : edgeBase;
+        return hexToRgba(base, isTagEdge(l) ? 0.75 : 0.55);
+      })
+      .linkOpacity(1)
+      .linkWidth(1.6)
+      .linkDirectionalParticles(l=> isTagEdge(l) && document.getElementById('sparks').checked ? 6 : 0)
+      .linkDirectionalParticleWidth(2.2)
+      .linkDirectionalParticleColor(l=>{
+        const accent = css().getPropertyValue('--accent').trim() || '#60a5fa';
+        return hexToRgba(accent, 0.95);
+      })
+      .linkDirectionalParticleSpeed(0.01);
 
     // Ajuste de força (quebra de encadeamento necessário)
     Graph.d3Force('charge').strength(-85);
