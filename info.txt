@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sérgio Batalha — Graph</title>
+  <style>
+    :root{
+      --bg:#0b0e11; --panel:#11151a; --muted:#7a8a99; --fg:#e6edf3;
+      --owner:#e5e7eb; --cat:#38bdf8; --doc:#22c55e; --edge:#7c8591;
+      --accent:#a78bfa; --hot:#f472b6;
+    }
+    html,body{height:100%;}
+    body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.35 system-ui,Segoe UI,Roboto,Inter,sans-serif;}
+    header{position:fixed;inset:0 0 auto 0;background:linear-gradient(180deg, rgba(11,14,17,.9), rgba(11,14,17,.3));
+      backdrop-filter:saturate(120%) blur(6px);z-index:10;padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    h1{margin:0;font-size:18px;letter-spacing:.3px;font-weight:700}
+    .muted{color:var(--muted)}
+    #scene{position:fixed;inset:0;}
+    .panel{position:fixed;right:10px;top:64px;background:var(--panel);border:1px solid #1a2230;border-radius:14px;
+      box-shadow:0 8px 24px rgba(0,0,0,.35);padding:12px 12px;min-width:260px;max-width:360px}
+    .panel h3{margin:0 0 8px 0;font-size:13px;letter-spacing:.2px;color:#cdd6e0}
+    .row{display:flex;gap:8px;align-items:center;margin:6px 0}
+    .row input[type="search"], .row select{flex:1;min-width:120px;background:#0d1218;border:1px solid #222b36;color:var(--fg);
+      border-radius:10px; padding:8px 10px;}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+    .kpi{background:#0d1218;border:1px solid #1a2230;border-radius:10px;padding:8px 10px;text-align:center}
+    .kpi b{display:block;font-size:16px}
+    .legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    button{background:#151b23;color:var(--fg);border:1px solid #243042;border-radius:10px;padding:8px 10px;cursor:pointer}
+    button:hover{border-color:#2f3f55}
+    label.toggle{display:flex;align-items:center;gap:8px;margin-top:6px;user-select:none}
+    input[type="checkbox"]{accent-color:var(--accent)}
+    a{color:#8ab4ff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    footer{position:fixed;left:10px;bottom:10px;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sérgio Batalha</h1>
+    <span class="muted">Rede interativa de categorias, notas e tags</span>
+  </header>
+
+  <div id="scene" aria-label="Interactive 3D graph"></div>
+
+  <aside class="panel">
+    <h3>Explorar</h3>
+    <div class="row"><input id="q" type="search" placeholder="Pesquisar título ou #tag…" /></div>
+    <div class="row">
+      <select id="category"><option value="">Todas as categorias</option></select>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><span class="muted">Nós</span><b id="kNodes">0</b></div>
+      <div class="kpi"><span class="muted">Arestas</span><b id="kEdges">0</b></div>
+      <div class="kpi"><span class="muted">Visíveis</span><b id="kVisible">0</b></div>
+    </div>
+    <div class="legend">
+      <span class="dot" style="background:var(--owner)"></span><span class="muted">Autor</span>
+      <span class="dot" style="background:var(--cat)"></span><span class="muted">Categoria</span>
+      <span class="dot" style="background:var(--doc)"></span><span class="muted">Documento</span>
+    </div>
+    <label class="toggle"><input id="autorotate" type="checkbox" checked/> Rotação lenta</label>
+    <label class="toggle"><input id="sparks" type="checkbox" checked/> Partículas nas arestas por tag</label>
+    <div class="btns">
+      <button id="fit">Ajustar visão</button>
+      <button id="reset">Reset câmara</button>
+      <button id="center">Ir para autor</button>
+    </div>
+    <p class="muted" style="margin-top:8px">Clique num nó de documento para abrir o ficheiro em nova aba.</p>
+  </aside>
+
+  <footer>Powered by <a href="https://github.com/vasturiano/3d-force-graph" target="_blank" rel="noreferrer">3d-force-graph</a></footer>
+
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/3d-force-graph"></script>
+  <script>
+  // ---- Estado global
+  let Graph, data, ALL_NODES = new Map(), ALL_LINKS = [],
+      FILTER = { term:"", category:"" },
+      HOVER = { nodeId:null },
+      ROTATE = true;
+
+  // ---- Utilidades
+  const isTagEdge = l => (l.kind||"").startsWith('tag:');
+  const byId = id => ALL_NODES.get(id);
+
+  // Filtragem: decide visibilidade de nós/arestas
+  function computeVisibility(){
+    const term = FILTER.term.trim().toLowerCase();
+    const cat = FILTER.category;
+
+    const visibleNode = new Set();
+
+    // calcula nós que cumprem filtros
+    for (const n of ALL_NODES.values()){
+      let ok = true;
+      if (cat && n.kind === 'doc') ok = (n.category === cat);
+      if (ok && term){
+        const inLabel = (n.label||'').toLowerCase().includes(term);
+        const inTags = Array.isArray(n.tags) && n.tags.some(t=>t.toLowerCase().includes(term));
+        ok = inLabel || inTags || n.kind !== 'doc'; // mantém owner/categorias
+      }
+      if (ok) visibleNode.add(n.id);
+    }
+
+    // Mantém conectividade local: para cada nó visível, manter vizinhos imediatos
+    for (const l of ALL_LINKS){
+      if (visibleNode.has(l.source) || visibleNode.has(l.target)){
+        visibleNode.add(l.source); visibleNode.add(l.target);
+      }
+    }
+
+    // Aplica ao gráfico
+    Graph.nodeVisibility(n => visibleNode.has(n.id));
+    Graph.linkVisibility(l => visibleNode.has(l.source) && visibleNode.has(l.target));
+
+    // KPIs
+    document.getElementById('kVisible').textContent = visibleNode.size;
+  }
+
+  // Destaque hover
+  function applyHighlight(){
+    const id = HOVER.nodeId;
+    const neigh = new Set();
+    if (id){
+      ALL_LINKS.forEach(l=>{ if (l.source===id) neigh.add(l.target); if (l.target===id) neigh.add(l.source); });
+    }
+    Graph.linkWidth(l => (id && (l.source===id || l.target===id)) ? 2.5 : 0.8);
+    Graph.linkColor(l => {
+      const base = isTagEdge(l) ? '#8aa0b8' : getComputedStyle(document.documentElement).getPropertyValue('--edge');
+      const hot = getComputedStyle(document.documentElement).getPropertyValue('--hot');
+      const a = (id && (l.source===id || l.target===id)) ? 0.95 : 0.35;
+      return base.replace(')', `, ${a})`).replace('rgb', 'rgba');
+    });
+    Graph.nodeVal(n => (n.id===id || neigh.has(n.id)) ? 12 : (n.kind==='owner'?12:(n.kind==='category'?8:4)));
+  }
+
+  // Cores por tipo
+  function colorFor(n){
+    const cs = getComputedStyle(document.documentElement);
+    if (n.kind==='owner') return cs.getPropertyValue('--owner').trim();
+    if (n.kind==='category') return cs.getPropertyValue('--cat').trim();
+    return cs.getPropertyValue('--doc').trim();
+  }
+
+  // Inicialização
+  fetch('graph.json').then(r=>r.json()).then(json=>{
+    data = json;
+    // Index
+    json.nodes.forEach(n=>ALL_NODES.set(n.id, n));
+    ALL_LINKS = json.links.map(l=>({
+      source: typeof l.source === 'object' ? l.source.id : l.source,
+      target: typeof l.target === 'object' ? l.target.id : l.target,
+      kind: l.kind
+    }));
+
+    // KPIs
+    document.getElementById('kNodes').textContent = json.nodes.length;
+    document.getElementById('kEdges').textContent = json.links.length;
+
+    // Popular categorias
+    const catSel = document.getElementById('category');
+    const categories = json.nodes.filter(n=>n.kind==='category').map(n=>n.label).sort();
+    for (const c of categories){
+      const opt = document.createElement('option');
+      opt.value = c.toLowerCase(); opt.textContent = c; catSel.appendChild(opt);
+    }
+
+    // Montar grafo
+    Graph = ForceGraph3D()(document.getElementById('scene'))
+      .graphData({
+        nodes: json.nodes.map(n=>({ ...n })),
+        links: ALL_LINKS.map(l=>({ ...l }))
+      })
+      .backgroundColor(getComputedStyle(document.documentElement).getPropertyValue('--bg').trim())
+      .nodeThreeObject(n=>{
+        // Esferas simples
+        const geo = new THREE.SphereGeometry(n.kind==='owner'?6:(n.kind==='category'?4:2.6), 16, 16);
+        const mat = new THREE.MeshStandardMaterial({ color: colorFor(n), metalness:0.1, roughness:0.6 });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.userData.__isNode = true;
+        return mesh;
+      })
+      .nodeLabel(n=>`$${n.label}`.replace('$','') + (n.tags?.length?`\n#${n.tags.join(' #')}`:''))
+      .linkColor(l=> isTagEdge(l) ? 'rgba(138,160,184,0.35)' : 'rgba(124,133,145,0.35)')
+      .linkOpacity(0.35)
+      .linkWidth(0.8)
+      .linkDirectionalParticles(l=> isTagEdge(l) && document.getElementById('sparks').checked ? 2 : 0)
+      .linkDirectionalParticleSpeed(0.005)
+      .d3Force('charge').strength(-85)
+      .onNodeClick(n=>{
+        if (n.kind==='doc' && n.path){ window.open('docs/' + n.path, '_blank'); }
+        // Foca a câmara
+        const dist = 80; const {x=0,y=0,z=0} = n; Graph.cameraPosition({ x:x+dist, y:y+dist, z:z+dist }, { x, y, z }, 1200);
+      })
+      .onNodeHover(n=>{ HOVER.nodeId = n ? n.id : null; applyHighlight(); })
+      .onLinkHover(() => {})
+      ;
+
+    // Iluminação
+    const scene = Graph.scene();
+    const light = new THREE.DirectionalLight(0xffffff, .8); light.position.set(80,120,40); scene.add(light);
+    scene.add(new THREE.AmbientLight(0xffffff, .35));
+
+    // Autorotate
+    const controls = Graph.controls();
+    function animate(){
+      if (ROTATE){ controls.autoRotate = true; controls.autoRotateSpeed = 0.4; }
+      else { controls.autoRotate = false; }
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Filtros
+    document.getElementById('q').addEventListener('input', e=>{ FILTER.term = e.target.value; computeVisibility(); });
+    document.getElementById('category').addEventListener('change', e=>{
+      FILTER.category = (e.target.value||'').toLowerCase(); computeVisibility();
+    });
+    document.getElementById('autorotate').addEventListener('change', e=>{ ROTATE = e.target.checked; });
+    document.getElementById('sparks').addEventListener('change', e=>{
+      Graph.linkDirectionalParticles(l=> isTagEdge(l) && e.target.checked ? 2 : 0);
+    });
+
+    // Botões
+    document.getElementById('fit').addEventListener('click', ()=> Graph.zoomToFit(900));
+    document.getElementById('reset').addEventListener('click', ()=>{
+      const cam = Graph.camera(); cam.position.set(120,120,120); controls.target.set(0,0,0);
+    });
+    document.getElementById('center').addEventListener('click', ()=>{
+      const owner = data.nodes.find(n=>n.kind==='owner'); if (!owner) return;
+      const {x=0,y=0,z=0} = owner; Graph.cameraPosition({ x:x+100,y:y+100,z:z+100 }, {x,y,z}, 1000);
+    });
+
+    // Visibilidade inicial
+    computeVisibility();
+
+    // Resize
+    addEventListener('resize', ()=> Graph.width(innerWidth).height(innerHeight));
+  });
+  </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+site:
+title: "Sérgio Batalha"
+slugs:
+- /trading/
+- /apostas/
+- /poker/
+- /data-automacao/
+- /ia/
+- /escrita/
+- /arte/
+- /musica/
+- /dev/
+- /projetos/
+- /vida/
+- /maker/
+- /microgreens/
+
+
+
+categories:
+- slug: trading
+title: "Trading & Mercados"
+sub:
+- "Forex (EURUSD, GBPUSD, USDJPY, etc.)"
+- "Índices (GER40/DAX, S&P500, NAS100)"
+- "Commodities (XAUUSD, WTI, Silver)"
+- "Estratégias (SMC/Wyckoff, Tendência, Reversão, Breakouts)"
+- "Gestão de Risco & Conta"
+- "Bots & Automação (MT5, Pine Script)"
+- "Relatórios de trades (equity, drawdown, winrate)"
+- "Educação & Guias (glossário, setups, checklists)"
+
+
+- slug: apostas
+title: "Apostas Desportivas"
+sub:
+- "Estratégias (ACCA 3 jogos, over/under, handicaps)"
+- "Modelos & Scripts (valor esperado, Kelly, automações)"
+- "Gestão de Banca"
+- "Futebol (ligas, calendários, mercados)"
+- "Registo de Picks & Resultados"
+- "Bots/Parsing"
+
+
+- slug: poker
+title: "Poker & Game Theory"
+sub:
+- "Modalidades (MTT, Cash, SNG)"
+- "HUD/PT4 & NoteCaddy (stats, badges, layouts)"
+- "Pré-flop/Pos-flop (3bet por posição, cbet/fold)"
+- "Exploit vs GTO"
+- "Gestão de Banca"
+- "Mão da Semana (review)"
+- "revisao de maos"
+
+
+  - slug: data-automacao
+    title: "Data & Automação"
+    sub:
+      - "Google Apps Script (Gmail/Drive, triggers)"
+      - "Python (ETL, scraping, backtesting)"
+      - "Pipelines (Drive ↔ GitHub ↔ Obsidian)"
+      - "Dashboards/Visualização (charts, KPIs)"
+      - "Agentes/Rotinas (briefings diários, sumários)"
+
+  - slug: ia
+    title: "IA & Prompting"
+    sub:
+      - "Prompts (templates, few-shot, roles)"
+      - "Agentes/Workflows (voz, visão, áudio)"
+      - "Ferramentas (OpenAI, SD, TTS/ASR)"
+      - "Ética & Segurança"
+
+  - slug: escrita
+    title: "Escrita & Livros"
+    sub:
+      - "Ash Orrn (Collapse-Proofe, manifestos)"
+      - "TRIA (capítulos, casos, quadros simbólicos)"
+      - "Ensaios/Crónicas"
+      - "Poesia & Microtextos"
+      - "E-books / Edição / Capa & Contracapa"
+
+  - slug: arte
+    title: "Arte & Interactivo"
+    sub:
+      - "Loop Room (audiovisual, loops)"
+      - "Jogos/Protótipos (HTML/JS, didáticos de velas)"
+      - "WebGL/Three.js / R3F"
+      - "Design/UX (guias, componentes)"
+
+  - slug: musica
+    title: "Música & Podcast"
+    sub:
+      - "Álbum ‘Ciclos’ (letras, produção)"
+
+  - slug: dev
+    title: "Dev & Infra"
+    sub:
+      - "Web (Next.js, Neocities)"
+      - "GitHub/Vercel/Netlify (CI/CD)"
+      - "AWS/Servers/Windows EC2"
+      - "Segurança/Deploy/NGINX"
+      - "APIs & Webhooks"
+
+  - slug: projetos
+    title: "Projetos & Cultura"
+    sub:
+      - "Arquivos da Forja (cinema ritual)"
+
+  - slug: vida
+    title: "Vida & Performance"
+    sub:
+      - "Nutrição & Suplementos"
+      - "Saúde & Monitorização"
+
+  - slug: maker
+    title: "Maker & DIY"
+    sub:
+      - "Airbrush & Pintura (técnicas, máscaras, manutenção)"
+      - "Laser Cutting (templates, materiais)"
+      - "3D/Blender (modelos, print 3D)"
+      - "Ferramentas/Oficina"
+
+  - slug: microgreens
+    title: "Microgreens & Jardinagem Urbana"
+    sub:
+      - "Variedades & Substratos"
+      - "Sistemas & Iluminação"
+      - "Cultivo & Colheita"
+      - "Higiene & Segurança Alimentar"
+      - "Receitas & Uso"
+
+  - slug: sobre
+    title: "Sobre & Contacto"
+    sub:
+      - "Contactos/Redes"
+      - "FAQ / Política"
+
+  - slug: arquivo
+    title: "Arquivo / Inbox"
+    sub:
+      - "Sem Categoria (entrada automática)"
+      - "Rascunhos / Em Progresso"
+
+# exemplos Tags-padrão (pontes para o grafo)
+tags:
+  assets: ["#asset/xauusd", "#asset/ger40", "#asset/spx"]
+  mercados: ["#mercado/forex", "#mercado/poker", "#mercado/apostas"]
+  estrategias: ["#estrategia/smc", "#estrategia/wyckoff", "#estrategia/acca", "#estrategia/gto"]
+  stack: ["#stack/nextjs", "#stack/gas", "#stack/python", "#stack/mt5", "#stack/pinescript"]
+  tipo: ["#tipo/tutorial", "#tipo/analise", "#tipo/relatorio", "#tipo/diario", "#tipo/template"]
+  estado: ["#estado/rascunho", "#estado/publicado"]
+  temas: ["#cidade/nazare", "#tema/filosofia", "#tema/educacao"]
+```
+* **Front‑matter‑tipo** a colar nos docs:
+
+```yaml
+---
+title: "TÍTULO"
+date: 2025-11-09
+categoria: trading
+subcategoria: estrategias
+tags: ["#mercado/forex", "#asset/xauusd", "#tipo/analise"]
+status: publicado
+---
+```

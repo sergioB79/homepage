@@ -1,0 +1,1 @@
+console.log(`✔ docs-index.json - (nodes: ${out.nodes.length}, links: ${out.links.length})`);

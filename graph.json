@@ -1,0 +1,929 @@
+{
+  "nodes": [
+    {
+      "id": "owner:sergio",
+      "label": "Sérgio Batalha",
+      "kind": "owner",
+      "bio": "Entusiasta de tecnologia e UX. Trabalho com desenvolvimento web e visualizações interativas.",
+      "contacts": {
+        "email": "sergio@example.com",
+        "github": "https://github.com/sergio",
+        "site": "https://example.com"
+      }
+    },
+    {
+      "id": "cat:trading",
+      "label": "Trading & Mercados",
+      "slug": "trading",
+      "kind": "category",
+      "about": "Forex (EURUSD, GBPUSD, USDJPY, etc.) · Índices (GER40/DAX, S&P500, NAS100)"
+    },
+    {
+      "id": "sub:trading:forex-eurusd-gbpusd-usdjpy-etc",
+      "label": "Forex (EURUSD, GBPUSD, USDJPY, etc.)",
+      "kind": "subcategory",
+      "category": "trading",
+      "about": "Forex (EURUSD, GBPUSD, USDJPY, etc.)"
+    },
+    {
+      "id": "sub:trading:indices-ger40-dax-s-p500-nas100",
+      "label": "Índices (GER40/DAX, S&P500, NAS100)",
+      "kind": "subcategory",
+      "category": "trading",
+      "about": "Índices (GER40/DAX, S&P500, NAS100)"
+    },
+    {
+      "id": "sub:trading:commodities-xauusd-wti-silver",
+      "label": "Commodities (XAUUSD, WTI, Silver)",
+      "kind": "subcategory",
+      "category": "trading",
+      "about": "Commodities (XAUUSD, WTI, Silver)"
+    },
+    {
+      "id": "sub:trading:estrategias-smc-wyckoff-tendencia-reversao-breakouts",
+      "label": "Estratégias (SMC/Wyckoff, Tendência, Reversão, Breakouts)",
+      "kind": "subcategory",
+      "category": "trading",
+      "about": "Estratégias (SMC/Wyckoff, Tendência, Reversão, Breakouts)"
+    },
+    {
+      "id": "sub:trading:gestao-de-risco-conta",
+      "label": "Gestão de Risco & Conta",
+      "kind": "subcategory",
+      "category": "trading",
+      "about": "Gestão de Risco & Conta"
+    },
+    {
+      "id": "sub:trading:bots-automacao-mt5-pine-script",
+      "label": "Bots & Automação (MT5, Pine Script)",
+      "kind": "subcategory",
+      "category": "trading",
+      "about": "Bots & Automação (MT5, Pine Script)"
+    },
+    {
+      "id": "sub:trading:relatorios-de-trades-equity-drawdown-winrate",
+      "label": "Relatórios de trades (equity, drawdown, winrate)",
+      "kind": "subcategory",
+      "category": "trading",
+      "about": "Relatórios de trades (equity, drawdown, winrate)"
+    },
+    {
+      "id": "sub:trading:educacao-guias-glossario-setups-checklists",
+      "label": "Educação & Guias (glossário, setups, checklists)",
+      "kind": "subcategory",
+      "category": "trading",
+      "about": "Educação & Guias (glossário, setups, checklists)"
+    },
+    {
+      "id": "cat:apostas",
+      "label": "Apostas Desportivas",
+      "slug": "apostas",
+      "kind": "category",
+      "about": "Estratégias (ACCA 3 jogos, over/under, handicaps) · Modelos & Scripts (valor esperado, Kelly, automações)"
+    },
+    {
+      "id": "sub:apostas:estrategias-acca-3-jogos-over-under-handicaps",
+      "label": "Estratégias (ACCA 3 jogos, over/under, handicaps)",
+      "kind": "subcategory",
+      "category": "apostas",
+      "about": "Estratégias (ACCA 3 jogos, over/under, handicaps)"
+    },
+    {
+      "id": "sub:apostas:modelos-scripts-valor-esperado-kelly-automacoes",
+      "label": "Modelos & Scripts (valor esperado, Kelly, automações)",
+      "kind": "subcategory",
+      "category": "apostas",
+      "about": "Modelos & Scripts (valor esperado, Kelly, automações)"
+    },
+    {
+      "id": "sub:apostas:gestao-de-banca",
+      "label": "Gestão de Banca",
+      "kind": "subcategory",
+      "category": "apostas",
+      "about": "Gestão de Banca"
+    },
+    {
+      "id": "sub:apostas:futebol-ligas-calendarios-mercados",
+      "label": "Futebol (ligas, calendários, mercados)",
+      "kind": "subcategory",
+      "category": "apostas",
+      "about": "Futebol (ligas, calendários, mercados)"
+    },
+    {
+      "id": "sub:apostas:registo-de-picks-resultados",
+      "label": "Registo de Picks & Resultados",
+      "kind": "subcategory",
+      "category": "apostas",
+      "about": "Registo de Picks & Resultados"
+    },
+    {
+      "id": "sub:apostas:bots-parsing",
+      "label": "Bots/Parsing",
+      "kind": "subcategory",
+      "category": "apostas",
+      "about": "Bots/Parsing"
+    },
+    {
+      "id": "cat:poker",
+      "label": "Poker & Game Theory",
+      "slug": "poker",
+      "kind": "category",
+      "about": "Modalidades (MTT, Cash, SNG) · HUD/PT4 & NoteCaddy (stats, badges, layouts)"
+    },
+    {
+      "id": "sub:poker:modalidades-mtt-cash-sng",
+      "label": "Modalidades (MTT, Cash, SNG)",
+      "kind": "subcategory",
+      "category": "poker",
+      "about": "Modalidades (MTT, Cash, SNG)"
+    },
+    {
+      "id": "sub:poker:hud-pt4-notecaddy-stats-badges-layouts",
+      "label": "HUD/PT4 & NoteCaddy (stats, badges, layouts)",
+      "kind": "subcategory",
+      "category": "poker",
+      "about": "HUD/PT4 & NoteCaddy (stats, badges, layouts)"
+    },
+    {
+      "id": "sub:poker:pre-flop-pos-flop-3bet-por-posicao-cbet-fold",
+      "label": "Pré-flop/Pos-flop (3bet por posição, cbet/fold)",
+      "kind": "subcategory",
+      "category": "poker",
+      "about": "Pré-flop/Pos-flop (3bet por posição, cbet/fold)"
+    },
+    {
+      "id": "sub:poker:exploit-vs-gto",
+      "label": "Exploit vs GTO",
+      "kind": "subcategory",
+      "category": "poker",
+      "about": "Exploit vs GTO"
+    },
+    {
+      "id": "sub:poker:gestao-de-banca",
+      "label": "Gestão de Banca",
+      "kind": "subcategory",
+      "category": "poker",
+      "about": "Gestão de Banca"
+    },
+    {
+      "id": "sub:poker:mao-da-semana-review",
+      "label": "Mão da Semana (review)",
+      "kind": "subcategory",
+      "category": "poker",
+      "about": "Mão da Semana (review)"
+    },
+    {
+      "id": "sub:poker:revisao-de-maos",
+      "label": "revisao de maos",
+      "kind": "subcategory",
+      "category": "poker",
+      "about": "revisao de maos"
+    },
+    {
+      "id": "cat:data-automacao",
+      "label": "Data & Automação",
+      "slug": "data-automacao",
+      "kind": "category",
+      "about": "Google Apps Script (Gmail/Drive, triggers) · Python (ETL, scraping, backtesting)"
+    },
+    {
+      "id": "sub:data-automacao:google-apps-script-gmail-drive-triggers",
+      "label": "Google Apps Script (Gmail/Drive, triggers)",
+      "kind": "subcategory",
+      "category": "data-automacao",
+      "about": "Google Apps Script (Gmail/Drive, triggers)"
+    },
+    {
+      "id": "sub:data-automacao:python-etl-scraping-backtesting",
+      "label": "Python (ETL, scraping, backtesting)",
+      "kind": "subcategory",
+      "category": "data-automacao",
+      "about": "Python (ETL, scraping, backtesting)"
+    },
+    {
+      "id": "sub:data-automacao:pipelines-drive-github-obsidian",
+      "label": "Pipelines (Drive ↔ GitHub ↔ Obsidian)",
+      "kind": "subcategory",
+      "category": "data-automacao",
+      "about": "Pipelines (Drive ↔ GitHub ↔ Obsidian)"
+    },
+    {
+      "id": "sub:data-automacao:dashboards-visualizacao-charts-kpis",
+      "label": "Dashboards/Visualização (charts, KPIs)",
+      "kind": "subcategory",
+      "category": "data-automacao",
+      "about": "Dashboards/Visualização (charts, KPIs)"
+    },
+    {
+      "id": "sub:data-automacao:agentes-rotinas-briefings-diarios-sumarios",
+      "label": "Agentes/Rotinas (briefings diários, sumários)",
+      "kind": "subcategory",
+      "category": "data-automacao",
+      "about": "Agentes/Rotinas (briefings diários, sumários)"
+    },
+    {
+      "id": "cat:ia",
+      "label": "IA & Prompting",
+      "slug": "ia",
+      "kind": "category",
+      "about": "Prompts (templates, few-shot, roles) · Agentes/Workflows (voz, visão, áudio)"
+    },
+    {
+      "id": "sub:ia:prompts-templates-few-shot-roles",
+      "label": "Prompts (templates, few-shot, roles)",
+      "kind": "subcategory",
+      "category": "ia",
+      "about": "Prompts (templates, few-shot, roles)"
+    },
+    {
+      "id": "sub:ia:agentes-workflows-voz-visao-audio",
+      "label": "Agentes/Workflows (voz, visão, áudio)",
+      "kind": "subcategory",
+      "category": "ia",
+      "about": "Agentes/Workflows (voz, visão, áudio)"
+    },
+    {
+      "id": "sub:ia:ferramentas-openai-sd-tts-asr",
+      "label": "Ferramentas (OpenAI, SD, TTS/ASR)",
+      "kind": "subcategory",
+      "category": "ia",
+      "about": "Ferramentas (OpenAI, SD, TTS/ASR)"
+    },
+    {
+      "id": "sub:ia:etica-seguranca",
+      "label": "Ética & Segurança",
+      "kind": "subcategory",
+      "category": "ia",
+      "about": "Ética & Segurança"
+    },
+    {
+      "id": "cat:escrita",
+      "label": "Escrita & Livros",
+      "slug": "escrita",
+      "kind": "category",
+      "about": "Ash Orrn (Collapse-Proofe, manifestos) · TRIA (capítulos, casos, quadros simbólicos)"
+    },
+    {
+      "id": "sub:escrita:ash-orrn-collapse-proofe-manifestos",
+      "label": "Ash Orrn (Collapse-Proofe, manifestos)",
+      "kind": "subcategory",
+      "category": "escrita",
+      "about": "Ash Orrn (Collapse-Proofe, manifestos)"
+    },
+    {
+      "id": "sub:escrita:tria-capitulos-casos-quadros-simbolicos",
+      "label": "TRIA (capítulos, casos, quadros simbólicos)",
+      "kind": "subcategory",
+      "category": "escrita",
+      "about": "TRIA (capítulos, casos, quadros simbólicos)"
+    },
+    {
+      "id": "sub:escrita:ensaios-cronicas",
+      "label": "Ensaios/Crónicas",
+      "kind": "subcategory",
+      "category": "escrita",
+      "about": "Ensaios/Crónicas"
+    },
+    {
+      "id": "sub:escrita:poesia-microtextos",
+      "label": "Poesia & Microtextos",
+      "kind": "subcategory",
+      "category": "escrita",
+      "about": "Poesia & Microtextos"
+    },
+    {
+      "id": "sub:escrita:e-books-edicao-capa-contracapa",
+      "label": "E-books / Edição / Capa & Contracapa",
+      "kind": "subcategory",
+      "category": "escrita",
+      "about": "E-books / Edição / Capa & Contracapa"
+    },
+    {
+      "id": "cat:arte",
+      "label": "Arte & Interactivo",
+      "slug": "arte",
+      "kind": "category",
+      "about": "Loop Room (audiovisual, loops) · Jogos/Protótipos (HTML/JS, didáticos de velas)"
+    },
+    {
+      "id": "sub:arte:loop-room-audiovisual-loops",
+      "label": "Loop Room (audiovisual, loops)",
+      "kind": "subcategory",
+      "category": "arte",
+      "about": "Loop Room (audiovisual, loops)"
+    },
+    {
+      "id": "sub:arte:jogos-prototipos-html-js-didaticos-de-velas",
+      "label": "Jogos/Protótipos (HTML/JS, didáticos de velas)",
+      "kind": "subcategory",
+      "category": "arte",
+      "about": "Jogos/Protótipos (HTML/JS, didáticos de velas)"
+    },
+    {
+      "id": "sub:arte:webgl-three-js-r3f",
+      "label": "WebGL/Three.js / R3F",
+      "kind": "subcategory",
+      "category": "arte",
+      "about": "WebGL/Three.js / R3F"
+    },
+    {
+      "id": "sub:arte:design-ux-guias-componentes",
+      "label": "Design/UX (guias, componentes)",
+      "kind": "subcategory",
+      "category": "arte",
+      "about": "Design/UX (guias, componentes)"
+    },
+    {
+      "id": "cat:musica",
+      "label": "Música & Podcast",
+      "slug": "musica",
+      "kind": "category",
+      "about": "Álbum ‘Ciclos’ (letras, produção)"
+    },
+    {
+      "id": "sub:musica:album-ciclos-letras-producao",
+      "label": "Álbum ‘Ciclos’ (letras, produção)",
+      "kind": "subcategory",
+      "category": "musica",
+      "about": "Álbum ‘Ciclos’ (letras, produção)"
+    },
+    {
+      "id": "cat:dev",
+      "label": "Dev & Infra",
+      "slug": "dev",
+      "kind": "category",
+      "about": "Web (Next.js, Neocities) · GitHub/Vercel/Netlify (CI/CD)"
+    },
+    {
+      "id": "sub:dev:web-next-js-neocities",
+      "label": "Web (Next.js, Neocities)",
+      "kind": "subcategory",
+      "category": "dev",
+      "about": "Web (Next.js, Neocities)"
+    },
+    {
+      "id": "sub:dev:github-vercel-netlify-ci-cd",
+      "label": "GitHub/Vercel/Netlify (CI/CD)",
+      "kind": "subcategory",
+      "category": "dev",
+      "about": "GitHub/Vercel/Netlify (CI/CD)"
+    },
+    {
+      "id": "sub:dev:aws-servers-windows-ec2",
+      "label": "AWS/Servers/Windows EC2",
+      "kind": "subcategory",
+      "category": "dev",
+      "about": "AWS/Servers/Windows EC2"
+    },
+    {
+      "id": "sub:dev:seguranca-deploy-nginx",
+      "label": "Segurança/Deploy/NGINX",
+      "kind": "subcategory",
+      "category": "dev",
+      "about": "Segurança/Deploy/NGINX"
+    },
+    {
+      "id": "sub:dev:apis-webhooks",
+      "label": "APIs & Webhooks",
+      "kind": "subcategory",
+      "category": "dev",
+      "about": "APIs & Webhooks"
+    },
+    {
+      "id": "cat:projetos",
+      "label": "Projetos & Cultura",
+      "slug": "projetos",
+      "kind": "category",
+      "about": "Arquivos da Forja (cinema ritual)"
+    },
+    {
+      "id": "sub:projetos:arquivos-da-forja-cinema-ritual",
+      "label": "Arquivos da Forja (cinema ritual)",
+      "kind": "subcategory",
+      "category": "projetos",
+      "about": "Arquivos da Forja (cinema ritual)"
+    },
+    {
+      "id": "cat:vida",
+      "label": "Vida & Performance",
+      "slug": "vida",
+      "kind": "category",
+      "about": "Nutrição & Suplementos · Saúde & Monitorização"
+    },
+    {
+      "id": "sub:vida:nutricao-suplementos",
+      "label": "Nutrição & Suplementos",
+      "kind": "subcategory",
+      "category": "vida",
+      "about": "Nutrição & Suplementos"
+    },
+    {
+      "id": "sub:vida:saude-monitorizacao",
+      "label": "Saúde & Monitorização",
+      "kind": "subcategory",
+      "category": "vida",
+      "about": "Saúde & Monitorização"
+    },
+    {
+      "id": "cat:maker",
+      "label": "Maker & DIY",
+      "slug": "maker",
+      "kind": "category",
+      "about": "Airbrush & Pintura (técnicas, máscaras, manutenção) · Laser Cutting (templates, materiais)"
+    },
+    {
+      "id": "sub:maker:airbrush-pintura-tecnicas-mascaras-manutencao",
+      "label": "Airbrush & Pintura (técnicas, máscaras, manutenção)",
+      "kind": "subcategory",
+      "category": "maker",
+      "about": "Airbrush & Pintura (técnicas, máscaras, manutenção)"
+    },
+    {
+      "id": "sub:maker:laser-cutting-templates-materiais",
+      "label": "Laser Cutting (templates, materiais)",
+      "kind": "subcategory",
+      "category": "maker",
+      "about": "Laser Cutting (templates, materiais)"
+    },
+    {
+      "id": "sub:maker:3d-blender-modelos-print-3d",
+      "label": "3D/Blender (modelos, print 3D)",
+      "kind": "subcategory",
+      "category": "maker",
+      "about": "3D/Blender (modelos, print 3D)"
+    },
+    {
+      "id": "sub:maker:ferramentas-oficina",
+      "label": "Ferramentas/Oficina",
+      "kind": "subcategory",
+      "category": "maker",
+      "about": "Ferramentas/Oficina"
+    },
+    {
+      "id": "cat:microgreens",
+      "label": "Microgreens & Jardinagem Urbana",
+      "slug": "microgreens",
+      "kind": "category",
+      "about": "Variedades & Substratos · Sistemas & Iluminação"
+    },
+    {
+      "id": "sub:microgreens:variedades-substratos",
+      "label": "Variedades & Substratos",
+      "kind": "subcategory",
+      "category": "microgreens",
+      "about": "Variedades & Substratos"
+    },
+    {
+      "id": "sub:microgreens:sistemas-iluminacao",
+      "label": "Sistemas & Iluminação",
+      "kind": "subcategory",
+      "category": "microgreens",
+      "about": "Sistemas & Iluminação"
+    },
+    {
+      "id": "sub:microgreens:cultivo-colheita",
+      "label": "Cultivo & Colheita",
+      "kind": "subcategory",
+      "category": "microgreens",
+      "about": "Cultivo & Colheita"
+    },
+    {
+      "id": "sub:microgreens:higiene-seguranca-alimentar",
+      "label": "Higiene & Segurança Alimentar",
+      "kind": "subcategory",
+      "category": "microgreens",
+      "about": "Higiene & Segurança Alimentar"
+    },
+    {
+      "id": "sub:microgreens:receitas-uso",
+      "label": "Receitas & Uso",
+      "kind": "subcategory",
+      "category": "microgreens",
+      "about": "Receitas & Uso"
+    },
+    {
+      "id": "cat:sobre",
+      "label": "Sobre & Contacto",
+      "slug": "sobre",
+      "kind": "category",
+      "about": "Contactos/Redes · FAQ / Política"
+    },
+    {
+      "id": "sub:sobre:contactos-redes",
+      "label": "Contactos/Redes",
+      "kind": "subcategory",
+      "category": "sobre",
+      "about": "Contactos/Redes"
+    },
+    {
+      "id": "sub:sobre:faq-politica",
+      "label": "FAQ / Política",
+      "kind": "subcategory",
+      "category": "sobre",
+      "about": "FAQ / Política"
+    },
+    {
+      "id": "cat:arquivo",
+      "label": "Arquivo / Inbox",
+      "slug": "arquivo",
+      "kind": "category",
+      "about": "Sem Categoria (entrada automática) · Rascunhos / Em Progresso"
+    },
+    {
+      "id": "sub:arquivo:sem-categoria-entrada-automatica",
+      "label": "Sem Categoria (entrada automática)",
+      "kind": "subcategory",
+      "category": "arquivo",
+      "about": "Sem Categoria (entrada automática)"
+    },
+    {
+      "id": "sub:arquivo:rascunhos-em-progresso",
+      "label": "Rascunhos / Em Progresso",
+      "kind": "subcategory",
+      "category": "arquivo",
+      "about": "Rascunhos / Em Progresso"
+    }
+  ],
+  "links": [
+    {
+      "source": "cat:trading",
+      "target": "sub:trading:forex-eurusd-gbpusd-usdjpy-etc",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:trading",
+      "target": "sub:trading:indices-ger40-dax-s-p500-nas100",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:trading",
+      "target": "sub:trading:commodities-xauusd-wti-silver",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:trading",
+      "target": "sub:trading:estrategias-smc-wyckoff-tendencia-reversao-breakouts",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:trading",
+      "target": "sub:trading:gestao-de-risco-conta",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:trading",
+      "target": "sub:trading:bots-automacao-mt5-pine-script",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:trading",
+      "target": "sub:trading:relatorios-de-trades-equity-drawdown-winrate",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:trading",
+      "target": "sub:trading:educacao-guias-glossario-setups-checklists",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:apostas",
+      "target": "sub:apostas:estrategias-acca-3-jogos-over-under-handicaps",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:apostas",
+      "target": "sub:apostas:modelos-scripts-valor-esperado-kelly-automacoes",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:apostas",
+      "target": "sub:apostas:gestao-de-banca",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:apostas",
+      "target": "sub:apostas:futebol-ligas-calendarios-mercados",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:apostas",
+      "target": "sub:apostas:registo-de-picks-resultados",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:apostas",
+      "target": "sub:apostas:bots-parsing",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:poker",
+      "target": "sub:poker:modalidades-mtt-cash-sng",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:poker",
+      "target": "sub:poker:hud-pt4-notecaddy-stats-badges-layouts",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:poker",
+      "target": "sub:poker:pre-flop-pos-flop-3bet-por-posicao-cbet-fold",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:poker",
+      "target": "sub:poker:exploit-vs-gto",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:poker",
+      "target": "sub:poker:gestao-de-banca",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:poker",
+      "target": "sub:poker:mao-da-semana-review",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:poker",
+      "target": "sub:poker:revisao-de-maos",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:data-automacao",
+      "target": "sub:data-automacao:google-apps-script-gmail-drive-triggers",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:data-automacao",
+      "target": "sub:data-automacao:python-etl-scraping-backtesting",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:data-automacao",
+      "target": "sub:data-automacao:pipelines-drive-github-obsidian",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:data-automacao",
+      "target": "sub:data-automacao:dashboards-visualizacao-charts-kpis",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:data-automacao",
+      "target": "sub:data-automacao:agentes-rotinas-briefings-diarios-sumarios",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:ia",
+      "target": "sub:ia:prompts-templates-few-shot-roles",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:ia",
+      "target": "sub:ia:agentes-workflows-voz-visao-audio",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:ia",
+      "target": "sub:ia:ferramentas-openai-sd-tts-asr",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:ia",
+      "target": "sub:ia:etica-seguranca",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:escrita",
+      "target": "sub:escrita:ash-orrn-collapse-proofe-manifestos",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:escrita",
+      "target": "sub:escrita:tria-capitulos-casos-quadros-simbolicos",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:escrita",
+      "target": "sub:escrita:ensaios-cronicas",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:escrita",
+      "target": "sub:escrita:poesia-microtextos",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:escrita",
+      "target": "sub:escrita:e-books-edicao-capa-contracapa",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:arte",
+      "target": "sub:arte:loop-room-audiovisual-loops",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:arte",
+      "target": "sub:arte:jogos-prototipos-html-js-didaticos-de-velas",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:arte",
+      "target": "sub:arte:webgl-three-js-r3f",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:arte",
+      "target": "sub:arte:design-ux-guias-componentes",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:musica",
+      "target": "sub:musica:album-ciclos-letras-producao",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:dev",
+      "target": "sub:dev:web-next-js-neocities",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:dev",
+      "target": "sub:dev:github-vercel-netlify-ci-cd",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:dev",
+      "target": "sub:dev:aws-servers-windows-ec2",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:dev",
+      "target": "sub:dev:seguranca-deploy-nginx",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:dev",
+      "target": "sub:dev:apis-webhooks",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:projetos",
+      "target": "sub:projetos:arquivos-da-forja-cinema-ritual",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:vida",
+      "target": "sub:vida:nutricao-suplementos",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:vida",
+      "target": "sub:vida:saude-monitorizacao",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:maker",
+      "target": "sub:maker:airbrush-pintura-tecnicas-mascaras-manutencao",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:maker",
+      "target": "sub:maker:laser-cutting-templates-materiais",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:maker",
+      "target": "sub:maker:3d-blender-modelos-print-3d",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:maker",
+      "target": "sub:maker:ferramentas-oficina",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:microgreens",
+      "target": "sub:microgreens:variedades-substratos",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:microgreens",
+      "target": "sub:microgreens:sistemas-iluminacao",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:microgreens",
+      "target": "sub:microgreens:cultivo-colheita",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:microgreens",
+      "target": "sub:microgreens:higiene-seguranca-alimentar",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:microgreens",
+      "target": "sub:microgreens:receitas-uso",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:sobre",
+      "target": "sub:sobre:contactos-redes",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:sobre",
+      "target": "sub:sobre:faq-politica",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:arquivo",
+      "target": "sub:arquivo:sem-categoria-entrada-automatica",
+      "kind": "has-sub"
+    },
+    {
+      "source": "cat:arquivo",
+      "target": "sub:arquivo:rascunhos-em-progresso",
+      "kind": "has-sub"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:trading",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:apostas",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:poker",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:data-automacao",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:ia",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:escrita",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:arte",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:musica",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:dev",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:projetos",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:vida",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:maker",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:microgreens",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:sobre",
+      "kind": "owns"
+    },
+    {
+      "source": "owner:sergio",
+      "target": "cat:arquivo",
+      "kind": "owns"
+    }
+  ]
+}

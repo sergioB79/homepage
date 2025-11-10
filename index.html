@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <title>Sérgio Batalha — Graph</title>
+  <style>
+    :root{
+      /* Theme */
+      --bg:#0b1020;         /* from snippet */
+      --card:#0f172a;       /* from snippet */
+      --text:#e2e8f0;       /* from snippet */
+      --muted:#94a3b8;      /* from snippet */
+      --accent:#60a5fa;     /* from snippet */
+      --border:#1f2a44;     /* from snippet */
+
+      /* App mappings */
+      --panel:var(--card);
+      --fg:var(--text);
+      --owner:#e5e7eb; --cat:#38bdf8; --sub:#93c5fd; --doc:#22c55e; --edge:#7c8591;
+      --hot:#f472b6;
+    }
+    *, *::before, *::after{ box-sizing:border-box }
+    html,body{height:100%;}
+    body{margin:0;background:var(--bg);color:var(--text);font:14px/1.35 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;}
+    header{position:fixed;inset:0 0 auto 0;background:linear-gradient(180deg, rgba(96,165,250,0.08), transparent);
+      border-bottom:1px solid var(--border);backdrop-filter:saturate(120%) blur(6px);z-index:10;padding:28px 24px 12px 24px;
+      display:flex;gap:6px;align-items:flex-start;flex-direction:column}
+    .brand{display:flex;flex-direction:column;gap:2px}
+    h1{margin:0;font-size:28px;letter-spacing:.2px;font-weight:700;font-family:'Orbitron','Share Tech Mono',Consolas,'SFMono-Regular',Menlo,monospace}
+    .sub{color:var(--muted);font-size:13px;margin-top:2px}
+    .meta-time{color:var(--muted);opacity:.85;font-size:11px;margin-top:2px}
+    .meta{display:flex;gap:10px;row-gap:8px;font-size:13px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+    .container{max-width:920px;margin:0 auto;padding:24px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;box-shadow:0 10px 30px rgba(0,0,0,0.25)}
+    .card h1, .card h2, .card h3, .card h4{color:#e6f1ff}
+    .card a{color:var(--accent);text-decoration:none}
+    .card code{background:#0b1220;padding:2px 6px;border-radius:6px}
+    .card pre{background:#0b1220;padding:14px;overflow:auto;border-radius:10px;border:1px solid #1d2a45}
+    .card table{width:100%;border-collapse:collapse}
+    .card table th, .card table td{border:1px solid #1d2a45;padding:8px 10px}
+    blockquote{border-left:3px solid var(--accent);padding-left:12px;margin-left:0;color:#cbd5e1}
+    hr{border:none;border-top:1px solid var(--border);margin:24px 0}
+    .footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 0 60px}
+    .badge{background:#0b1220;border:1px solid #1d2a45;padding:2px 8px;border-radius:999px}
+    .callout{margin:18px 0 2px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:#0b1220}
+    .callout h3{margin:0 0 8px 0;font-size:15px;color:#e6f1ff}
+    .callout pre{margin-top:8px}
+    label.toggle:has(#autorotate){display:none}
+    .muted{color:var(--muted)}
+    #scene{position:fixed;inset:0;}
+    .panel{position:fixed;right:10px;top:92px;z-index:20;background:var(--panel);border:1px solid var(--border);border-radius:14px;
+      box-shadow:0 8px 24px rgba(0,0,0,.35);padding:12px 12px;min-width:260px;max-width:360px}
+    .panel h3{margin:0 0 8px 0;font-size:13px;letter-spacing:.2px;color:#cdd6e0}
+    .row{display:flex;gap:8px;align-items:center;margin:6px 0}
+    .row input[type="search"], .row select{flex:1;min-width:120px;background:var(--card);border:1px solid var(--border);color:var(--fg);
+      border-radius:10px; padding:8px 10px;}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+    .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center}
+    .kpi b{display:block;font-size:16px}
+    .legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    button{background:#151b23;color:var(--fg);border:1px solid #243042;border-radius:10px;padding:8px 10px;cursor:pointer}
+    button:hover{border-color:#2f3f55}
+    label.toggle{display:flex;align-items:center;gap:8px;margin-top:6px;user-select:none}
+    input[type="checkbox"]{accent-color:var(--accent)}
+    a{color:#8ab4ff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    footer{position:fixed;left:10px;bottom:10px;color:var(--muted);font-size:12px}
+    /* Garantir que elementos com [hidden] ficam invisíveis */
+    [hidden]{display:none !important}
+
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:grid;place-items:center;z-index:20}
+    .modal{background:var(--panel);border:1px solid #1a2230;border-radius:14px;box-shadow:0 12px 28px rgba(0,0,0,.45);width:min(680px,calc(100% - 28px));padding:12px 14px}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    .modal-header h3{margin:0;font-size:16px;letter-spacing:.2px;color:#cdd6e0}
+    #modalClose{background:#151b23;color:var(--fg);border:1px solid #243042;border-radius:10px;padding:4px 8px;cursor:pointer}
+    #modalClose:hover{border-color:#2f3f55}
+    .modal-body{font-size:14px;color:var(--fg)}
+    .modal-body p{margin:6px 0}
+    .modal-body ul{margin:6px 0 0 18px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sérgio Batalha</h1>
+    <span class="muted">Rede interativa de categorias, notas e tags</span>
+  </header>
+
+  <div id="scene" aria-label="Interactive 3D graph"></div>
+
+  <!-- Modal de informação -->
+  <div id="modal" class="modal-overlay" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle"></h3>
+        <button id="modalClose" aria-label="Fechar">×</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <aside class="panel">
+    <h3>Explorar</h3>
+    <div class="row"><input id="q" type="search" placeholder="Pesquisar título ou #tag…" /></div>
+    <div class="row">
+      <select id="category"><option value="">Todas as categorias</option></select>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><span class="muted">Nós</span><b id="kNodes">0</b></div>
+      <div class="kpi"><span class="muted">Arestas</span><b id="kEdges">0</b></div>
+      <div class="kpi"><span class="muted">Visíveis</span><b id="kVisible">0</b></div>
+    </div>
+    <div class="legend">
+      <span class="dot" style="background:var(--owner)"></span><span class="muted">Autor</span>
+      <span class="dot" style="background:var(--cat)"></span><span class="muted">Categoria</span>
+      <span class="dot" style="background:var(--sub)"></span><span class="muted">Subcategoria</span>
+      <span class="dot" style="background:var(--doc)"></span><span class="muted">Documento</span>
+    </div>
+    <label class="toggle"><input id="autorotate" type="checkbox" checked/> Rotação lenta</label>
+    <label class="toggle"><input id="sparks" type="checkbox" checked/> Partículas nas arestas por tag</label>
+    <div class="btns">
+      <button id="fit">Ajustar visão</button>
+      <button id="reset">Reset câmara</button>
+      <button id="center">Ir para autor</button>
+    </div>
+    <p class="muted" style="margin-top:8px">Clique num nó de documento para abrir o ficheiro em nova aba.</p>
+  </aside>
+
+  <footer>Powered by <a href="https://github.com/vasturiano/3d-force-graph" target="_blank" rel="noreferrer">3d-force-graph</a></footer>
+
+  <script src="https://unpkg.com/3d-force-graph@1.73.0"></script>
+  <script>
+  // ---- Estado global
+  let Graph, data, ALL_NODES = new Map(), ALL_LINKS = [],
+      FILTER = { term:"", category:"" },
+      HOVER = { nodeId:null };
+
+  // ---- Data/hora atual (linha pequena no header)
+  function updateNow(){
+    const header = document.querySelector('header');
+    if (!header) return;
+    let el = document.getElementById('now');
+    if (!el){
+      el = document.createElement('div');
+      el.id = 'now';
+      el.className = 'meta-time';
+      header.appendChild(el);
+    }
+    el.textContent = new Date().toLocaleString('pt-PT', { dateStyle:'medium', timeStyle:'short' });
+  }
+  updateNow();
+  setInterval(updateNow, 30000);
+
+  // Remove o toggle de rotação lenta, se existir
+  (function(){
+    const a = document.getElementById('autorotate');
+    if (a && a.closest('label')) a.closest('label').remove();
+  })();
+
+  // ---- Utilidades
+  const isTagEdge = l => (l.kind||"").startsWith('tag:');
+  const byId = id => ALL_NODES.get(id);
+  const idOf = v => (typeof v === 'object' && v) ? v.id : v;
+
+  // ---- Modal helpers
+  function showModal(title, html){
+    const overlay = document.getElementById('modal');
+    const t = document.getElementById('modalTitle');
+    const b = document.getElementById('modalBody');
+    t.textContent = title;
+    b.innerHTML = html;
+    overlay.hidden = false;
+  }
+  function hideModal(){
+    const overlay = document.getElementById('modal');
+    overlay.hidden = true;
+  }
+  addEventListener('keydown', e=>{ if (e.key==='Escape') hideModal(); });
+  // Click fora fecha; botão X fecha
+  const __modalOverlay = document.getElementById('modal');
+  const __modalClose = document.getElementById('modalClose');
+  if (__modalOverlay){
+    __modalOverlay.addEventListener('click', e=>{ if (e.target === __modalOverlay) hideModal(); });
+  }
+  if (__modalClose){ __modalClose.addEventListener('click', hideModal); }
+
+  function openOwnerModal(n){
+    const bio = n.bio || 'Autor do grafo.';
+    const c = n.contacts || {};
+    const lines = [];
+    if (c.email) lines.push(`<li>Email: <a href="mailto:${c.email}">${c.email}</a></li>`);
+    if (c.github) lines.push(`<li>GitHub: <a href="${c.github}" target="_blank" rel="noreferrer">${c.github}</a></li>`);
+    if (c.site) lines.push(`<li>Site: <a href="${c.site}" target="_blank" rel="noreferrer">${c.site}</a></li>`);
+    const html = `
+      <p>${bio}</p>
+      ${lines.length ? `<ul>${lines.join('')}</ul>` : ''}
+    `;
+    showModal(n.label, html);
+  }
+
+  function openCategoryModal(n){
+    const key = n.slug || (n.label||'').toLowerCase();
+    const docs = (data?.nodes||[]).filter(d=>d.kind==='doc' && d.category===key);
+    const subs = (data?.nodes||[]).filter(d=>d.kind==='subcategory' && d.category===key);
+    const tagsMap = new Map();
+    docs.forEach(d=> (d.tags||[]).forEach(t=> tagsMap.set(t, (tagsMap.get(t)||0)+1)) );
+    const tags = [...tagsMap.entries()].sort((a,b)=> b[1]-a[1]).map(([t,c])=>`<li>#${t} <span class="muted">(${c})</span></li>`).join('');
+    const about = n.about || `Notas na categoria ${n.label}.`;
+    const html = `
+      <p class="muted">Categoria</p>
+      <p>${about}</p>
+      <p><b>${docs.length}</b> documento(s) nesta categoria.</p>
+      ${subs.length? `<p class="muted">Subcategorias</p><ul>${subs.map(s=>`<li>${s.label}</li>`).join('')}</ul>` : ''}
+      ${tags ? `<p class="muted">Tags usadas</p><ul>${tags}</ul>` : ''}
+    `;
+    showModal(n.label, html);
+  }
+
+  function openSubcategoryModal(n){
+    const catSlug = n.category;
+    const cat = (data?.nodes||[]).find(x=>x.kind==='category' && (x.slug||'')===catSlug);
+    const catName = cat ? cat.label : catSlug;
+    const html = `
+      <p class="muted">Subcategoria</p>
+      <p>${n.about || n.label}</p>
+      <p class="muted">Pertence a</p>
+      <p><b>${catName}</b></p>
+    `;
+    showModal(n.label, html);
+  }
+
+  // Filtragem: decide visibilidade de nós/arestas
+  function computeVisibility(){
+    const term = FILTER.term.trim().toLowerCase();
+    const cat = FILTER.category;
+
+    // Sem filtros: tudo visível
+    if (!term && !cat){
+      Graph.nodeVisibility(() => true);
+      Graph.linkVisibility(() => true);
+      document.getElementById('kVisible').textContent = ALL_NODES.size;
+      return;
+    }
+
+    // Nós correspondentes (documentos e subcategorias que casam com filtros)
+    const match = new Set();
+    for (const n of ALL_NODES.values()){
+      if (n.kind === 'doc'){
+        let ok = true;
+        if (cat) ok = (n.category === cat);
+        if (ok && term){
+          const inLabel = (n.label||'').toLowerCase().includes(term);
+          const inTags = Array.isArray(n.tags) && n.tags.some(t=>t.toLowerCase().includes(term));
+          ok = inLabel || inTags;
+        }
+        if (ok) match.add(n.id);
+      } else if (n.kind === 'subcategory'){
+        let ok = true;
+        if (cat) ok = (n.category === cat);
+        if (ok && term){ ok = (n.label||'').toLowerCase().includes(term); }
+        if (ok) match.add(n.id);
+      }
+    }
+
+    // Visíveis: nós casados + vizinhos imediatos + contexto
+    const visible = new Set();
+    for (const l of ALL_LINKS){
+      const s = l.source, t = l.target;
+      if (match.has(s) || match.has(t)){
+        visible.add(s); visible.add(t);
+      }
+    }
+    // Se categoria selecionada, garantir nó da categoria e subcategorias visíveis
+    if (cat){
+      const catId = 'cat:' + cat;
+      visible.add(catId);
+      for (const n of ALL_NODES.values()){
+        if (n.kind==='subcategory' && n.category===cat) visible.add(n.id);
+      }
+    }
+    if (visible.size === 0){
+      for (const n of ALL_NODES.values()) if (n.kind !== 'doc') visible.add(n.id);
+    }
+
+    Graph.nodeVisibility(n => visible.has(n.id));
+    Graph.linkVisibility(l => {
+      const s = (typeof l.source === 'object' && l.source) ? l.source.id : l.source;
+      const t = (typeof l.target === 'object' && l.target) ? l.target.id : l.target;
+      return visible.has(s) && visible.has(t);
+    });
+
+    document.getElementById('kVisible').textContent = visible.size;
+  }
+
+  // Destaque hover
+  function applyHighlight(){
+    const id = HOVER.nodeId;
+    const neigh = new Set();
+    if (id){
+      ALL_LINKS.forEach(l=>{ if (l.source===id) neigh.add(l.target); if (l.target===id) neigh.add(l.source); });
+    }
+    Graph.linkWidth(l => {
+      const s = idOf(l.source), t = idOf(l.target);
+      return (id && (s===id || t===id)) ? 2.5 : 0.8;
+    });
+    Graph.linkColor(l => {
+      const s = idOf(l.source), t = idOf(l.target);
+      const a = (id && (s===id || t===id)) ? 0.95 : 0.35;
+      return isTagEdge(l) ? `rgba(138,160,184,${a})` : `rgba(124,133,145,${a})`;
+    });
+    Graph.nodeVal(n => (n.id===id || neigh.has(n.id)) ? 12 : (n.kind==='owner'?12:(n.kind==='category'?8:(n.kind==='subcategory'?6:4))));
+  }
+
+  // Cores por tipo
+  function colorFor(n){
+    const cs = getComputedStyle(document.documentElement);
+    if (n.kind==='owner') return cs.getPropertyValue('--owner').trim();
+    if (n.kind==='category') return cs.getPropertyValue('--cat').trim();
+    if (n.kind==='subcategory') return cs.getPropertyValue('--sub').trim();
+    return cs.getPropertyValue('--doc').trim();
+  }
+
+  // Inicialização
+  fetch('graph.json').then(r=>r.json()).then(async json=>{
+    // Tentar ler categoriasNovas.txt e gerar subcategorias
+    async function tryAugmentWithCategories(j){
+      // If subcategories already exist in graph.json (built), skip augment
+      if (Array.isArray(j.nodes) && j.nodes.some(n=>n.kind==='subcategory')) return j;
+      try{
+        const resp = await fetch('categoriasNovas.txt');
+        if (!resp.ok) return j;
+        const txt = await resp.text();
+        const cats = parseCategoriesText(txt); // [{slug,title,subs[]}]
+        const byId = new Map(j.nodes.map(n=>[n.id,n]));
+        const existingSlugs = new Set(j.nodes.filter(n=>n.kind==='category').map(n=>n.slug|| (n.label||'').toLowerCase()));
+        for (const c of cats){
+          const catId = 'cat:' + c.slug;
+          let cat = byId.get(catId);
+          if (!cat){
+            cat = { id: catId, label: c.title || c.slug, slug: c.slug, kind:'category', about: '' };
+            j.nodes.push(cat); byId.set(catId, cat);
+          }else{
+            cat.slug = c.slug; cat.label = c.title || cat.label;
+          }
+          // subcategorias
+          for (const s of (c.subs||[])){
+            const subSlug = slugify(s);
+            const subId = `sub:${c.slug}:${subSlug}`;
+            if (!byId.has(subId)){
+              j.nodes.push({ id: subId, label: s.replace(/^"|"$/g,''), kind:'subcategory', category: c.slug, about: s });
+              j.links.push({ source: catId, target: subId, kind:'has-sub' });
+              byId.set(subId, true);
+            }
+          }
+        }
+      }catch(_e){ /* ignora */ }
+      return j;
+    }
+
+    function slugify(s){
+      return (s||'').toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    }
+
+    function parseCategoriesText(t){
+      const lines = t.split(/\r?\n/);
+      const out = []; let inCats=false; let current=null; let inSub=false;
+      function pushCurrent(){ if (current){ out.push({ slug:current.slug, title:current.title, subs:(current.subs||[]) }); } current=null; inSub=false; }
+      for (let raw of lines){
+        const line = raw.trim();
+        if (!inCats){ if (line.toLowerCase().startsWith('categories:')) { inCats=true; } continue; }
+        if (!line) { inSub=false; continue; }
+        const mSlug = line.match(/^[-]\s*slug:\s*([^\s]+)/i) || raw.match(/^\s*[-]\s*slug:\s*([^\s]+)/i);
+        if (mSlug){ pushCurrent(); current = { slug: (mSlug[1]||'').trim(), title:'', subs:[] }; continue; }
+        const mTitle = line.match(/^title:\s*"?(.+?)"?$/i);
+        if (mTitle && current){ current.title = mTitle[1]; continue; }
+        if (/^sub:\s*$/i.test(line)) { inSub = true; continue; }
+        if (inSub){
+          const mItem = raw.match(/^\s*[-]\s*"?(.+?)"?\s*$/);
+          if (mItem && current){ current.subs.push(mItem[1]); continue; }
+        }
+        if (line.startsWith('tags:')) { pushCurrent(); break; }
+      }
+      pushCurrent();
+      return out;
+    }
+
+    data = await tryAugmentWithCategories(json);
+    // Index após augments
+    data.nodes.forEach(n=>ALL_NODES.set(n.id, n));
+    ALL_LINKS = data.links.map(l=>({
+      source: typeof l.source === 'object' ? l.source.id : l.source,
+      target: typeof l.target === 'object' ? l.target.id : l.target,
+      kind: l.kind
+    }));
+
+    // KPIs
+    document.getElementById('kNodes').textContent = data.nodes.length;
+    document.getElementById('kEdges').textContent = data.links.length;
+
+    // Popular categorias (usar slug quando existir)
+    const catSel = document.getElementById('category');
+    const categories = data.nodes
+      .filter(n=>n.kind==='category')
+      .map(n=>({ label: n.label, slug: n.slug || (n.label||'').toLowerCase() }))
+      .sort((a,b)=> a.label.localeCompare(b.label, 'pt-PT'));
+    for (const c of categories){
+      const opt = document.createElement('option');
+      opt.value = c.slug; opt.textContent = c.label; catSel.appendChild(opt);
+    }
+
+    // Montar grafo
+    Graph = ForceGraph3D()(document.getElementById('scene'))
+      .graphData({
+        nodes: data.nodes.map(n=>({ ...n })),
+        links: ALL_LINKS.map(l=>({ ...l }))
+      })
+      .backgroundColor(getComputedStyle(document.documentElement).getPropertyValue('--bg').trim())
+      .nodeColor(n => colorFor(n))
+      .nodeLabel(n=>`$${n.label}`.replace('$','') + (n.tags?.length?`\n#${n.tags.join(' #')}`:''))
+      .linkColor(l=> isTagEdge(l) ? 'rgba(138,160,184,0.35)' : 'rgba(124,133,145,0.35)')
+      .linkOpacity(0.35)
+      .linkWidth(0.8)
+      .linkDirectionalParticles(l=> isTagEdge(l) && document.getElementById('sparks').checked ? 2 : 0)
+      .linkDirectionalParticleSpeed(0.005);
+
+    // Ajuste de força (quebra de encadeamento necessário)
+    Graph.d3Force('charge').strength(-85);
+
+    // Handlers (encadeados a partir da instância Graph)
+    Graph
+      .onNodeClick(n=>{
+        if (n.kind==='doc' && n.path){
+          window.open('docs/' + n.path, '_blank');
+          return;
+        }
+        if (n.kind==='owner'){
+          openOwnerModal(n);
+        } else if (n.kind==='category'){
+          openCategoryModal(n);
+        } else if (n.kind==='subcategory'){
+          openSubcategoryModal(n);
+        }
+        // Focar a câmara suavemente
+        const dist = 80; const {x=0,y=0,z=0} = n; Graph.cameraPosition({ x:x+dist, y:y+dist, z:z+dist }, { x, y, z }, 1200);
+      })
+      .onNodeHover(n=>{ HOVER.nodeId = n ? n.id : null; applyHighlight(); })
+      .onLinkHover(() => {});
+
+    // Iluminação padrão do 3d-force-graph é suficiente
+
+    // Controles sem rotação automática
+    const controls = Graph.controls();
+
+    // Filtros
+    document.getElementById('q').addEventListener('input', e=>{ FILTER.term = e.target.value; computeVisibility(); });
+    document.getElementById('category').addEventListener('change', e=>{
+      FILTER.category = (e.target.value||''); computeVisibility();
+    });
+    document.getElementById('sparks').addEventListener('change', e=>{
+      Graph.linkDirectionalParticles(l=> isTagEdge(l) && e.target.checked ? 2 : 0);
+    });
+
+    // Botões
+    document.getElementById('fit').addEventListener('click', ()=> Graph.zoomToFit(900));
+    document.getElementById('reset').addEventListener('click', ()=>{
+      const cam = Graph.camera(); cam.position.set(120,120,120); controls.target.set(0,0,0);
+    });
+    document.getElementById('center').addEventListener('click', ()=>{
+      const owner = data.nodes.find(n=>n.kind==='owner'); if (!owner) return;
+      const {x=0,y=0,z=0} = owner; Graph.cameraPosition({ x:x+100,y:y+100,z:z+100 }, {x,y,z}, 1000);
+    });
+
+    // Visibilidade inicial
+    computeVisibility();
+
+    // Resize
+    addEventListener('resize', ()=> Graph.width(innerWidth).height(innerHeight));
+  });
+  </script>
+</body>
+</html>
