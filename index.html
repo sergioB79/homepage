@@ -181,6 +181,32 @@
     return `rgba(96,165,250, ${a})`;
   }
 
+  // ---- Audio (tech beep on clicks)
+  const AUDIO = { ctx: null, unlocked: false };
+  function ensureAudio(){
+    if (!AUDIO.ctx){
+      try { AUDIO.ctx = new (window.AudioContext||window.webkitAudioContext)(); }
+      catch(_) { AUDIO.ctx = null; }
+    }
+    if (AUDIO.ctx && AUDIO.ctx.state === 'suspended') AUDIO.ctx.resume();
+    AUDIO.unlocked = !!AUDIO.ctx;
+  }
+  function beep(freq=880, duration=0.08, type='square', gain=0.03){
+    if (!AUDIO.ctx) return;
+    const ctx = AUDIO.ctx;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    g.gain.value = gain;
+    osc.connect(g); g.connect(ctx.destination);
+    const now = ctx.currentTime;
+    osc.start(now);
+    // quick decay
+    g.gain.setValueAtTime(gain, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    osc.stop(now + duration + 0.01);
+  }
+
   // ---- Modal helpers
   function showModal(title, html){
     const overlay = document.getElementById('modal');
@@ -453,7 +479,11 @@
       })
       .linkOpacity(1)
       .linkWidth(1.6)
-      .linkDirectionalParticles(l=> isTagEdge(l) && document.getElementById('sparks').checked ? 6 : 0)
+      .linkDirectionalParticles(l=> {
+        const on = document.getElementById('sparks').checked;
+        if (!on) return 0;
+        return isTagEdge(l) ? 6 : 2; // show some particles on all links when enabled
+      })
       .linkDirectionalParticleWidth(2.2)
       .linkDirectionalParticleColor(l=>{
         const accent = css().getPropertyValue('--accent').trim() || '#60a5fa';
@@ -467,6 +497,7 @@
     // Handlers (encadeados a partir da instância Graph)
     Graph
       .onNodeClick(n=>{
+        ensureAudio(); if (AUDIO.unlocked) beep(920, 0.06, 'square', 0.035);
         if (n.kind==='doc' && n.path){
           window.open('docs/' + n.path, '_blank');
           return;
@@ -495,7 +526,8 @@
       FILTER.category = (e.target.value||''); computeVisibility();
     });
     document.getElementById('sparks').addEventListener('change', e=>{
-      Graph.linkDirectionalParticles(l=> isTagEdge(l) && e.target.checked ? 2 : 0);
+      const on = e.target.checked;
+      Graph.linkDirectionalParticles(l=> on ? (isTagEdge(l) ? 6 : 2) : 0);
     });
 
     // Botões

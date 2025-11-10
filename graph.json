@@ -625,6 +625,21 @@
       "category": "trading",
       "tags": [],
       "path": "OceanProtocol.html"
+    },
+    {
+      "id": "doc:vercel-para-humanos",
+      "label": "Vercel para Humanos: o que é, quando usar, perigos e um guia rápido",
+      "kind": "doc",
+      "category": "dev",
+      "subcategory": "deploy",
+      "tags": [
+        "#stack/vercel",
+        "#stack/nextjs",
+        "#tipo/guia",
+        "#devops/ci-cd",
+        "#web/performance"
+      ],
+      "path": "vercel-para-humanos.html"
     }
   ],
   "links": [
@@ -1041,6 +1056,11 @@
     {
       "source": "cat:trading",
       "target": "doc:oceanprotocol",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:dev",
+      "target": "doc:vercel-para-humanos",
       "kind": "contains"
     }
   ]

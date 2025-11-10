@@ -1,0 +1,207 @@
+<!doctype html>
+<!--
+---
+title: "Vercel para Humanos: o que é, quando usar, perigos e um guia rápido"
+categoria: dev
+subcategoria: deploy
+status: published
+date: 2025-11-10
+tags: ["#stack/vercel", "#stack/nextjs", "#tipo/guia", "#devops/ci-cd", "#web/performance"]
+---
+-->
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="title" content="Vercel para Humanos: o que é, quando usar, perigos e um guia rápido">
+  <meta name="description" content="Guia prático e honesto sobre Vercel: o que é, para que serve, quando usar, perigos a evitar e um passo-a-passo com exemplos.">
+  <meta name="categoria" content="dev">
+  <meta name="subcategoria" content="deploy">
+  <meta name="status" content="published">
+  <meta name="date" content="2025-11-10">
+  <meta name="tags" content="#stack/vercel, #stack/nextjs, #tipo/guia, #devops/ci-cd, #web/performance">
+  <style>
+    body{font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;margin:0;padding:2rem;max-width:900px}
+    h1,h2,h3{line-height:1.25;margin:1.6rem 0 .6rem}
+    code,kbd,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    pre{background:#0b0b0c;color:#e6e6e6;padding:1rem;border-radius:.75rem;overflow:auto}
+    .tip{background:#eefbea;border-left:4px solid #30a46c;padding:.75rem 1rem;border-radius:.25rem}
+    .warn{background:#fff6e5;border-left:4px solid #ffb224;padding:.75rem 1rem;border-radius:.25rem}
+    .danger{background:#ffe9e8;border-left:4px solid #e5484d;padding:.75rem 1rem;border-radius:.25rem}
+    ul{margin-top:.3rem}
+    hr{margin:2rem 0;border:0;border-top:1px solid #e6e6e6}
+    .tags{opacity:.75;margin-top:2rem}
+  </style>
+  <title>Vercel para Humanos: o que é, quando usar, perigos e um guia rápido</title>
+</head>
+<body>
+
+<h1>Vercel: o que é, para que serve e como usar (sem cair nas armadilhas)</h1>
+
+<p><strong>Resumo em 1 frase:</strong> A Vercel é uma plataforma de <em>hosting</em> e CI/CD optimizada para front-ends modernos (especialmente <strong>Next.js</strong>), com <em>previews</em> por <em>pull request</em>, funções <em>Serverless/Edge</em> e integrações de domínio – ideal para equipas que querem velocidade sem gerir servidores.</p>
+
+<h2>O que é a Vercel?</h2>
+<p>É uma plataforma de <em>deploy</em> “git-push-to-prod” que constrói o teu projecto, publica automaticamente <em>deploy previews</em> para cada branch/PR e promove para produção com um clique (ou comando). Suporta:</p>
+<ul>
+  <li><strong>Front-ends</strong>: Next.js (primeiro-classe), React, SvelteKit, Nuxt, Astro, static sites.</li>
+  <li><strong>Funções</strong>: Serverless (Node.js, Python, Go, Ruby) e <strong>Edge Functions</strong> (runtime web padrão/Deno) para baixa latência.</li>
+  <li><strong>Armazenamento</strong> (opcional): Vercel KV, Postgres, Blob (úteis para protótipos e MVPs).</li>
+  <li><strong>Domínios e CDN</strong> globais com cache inteligente.</li>
+</ul>
+
+<h2>Quando usar (e quando é overkill)</h2>
+<div class="tip">
+  <strong>Usa a Vercel se…</strong>
+  <ul>
+    <li>Trabalhas com <strong>Next.js</strong> ou outro framework moderno e queres <em>previews</em> por PR.</li>
+    <li>Queres <strong>escala automática</strong> sem gerir Docker/Kubernetes.</li>
+    <li>Precisas de <strong>Edge Middleware</strong> (A/B testing, i18n, reescritas) de forma simples.</li>
+    <li>Vais servir sobretudo <strong>conteúdo estático ou SSR leve</strong>.</li>
+  </ul>
+</div>
+
+<div class="warn">
+  <strong>Talvez não seja a melhor escolha se…</strong>
+  <ul>
+    <li>Precisas de <strong>tarefas longas</strong> (jobs > 10–60s, <em>long-running</em> workers, <em>WebSockets persistentes</em> pesados).</li>
+    <li>Tens <strong>cargas intensivas de CPU</strong> (ETL pesado, IA local, FFMPEG contínuo) – considera serviços dedicados.</li>
+    <li>Exiges <strong>controlo fino de infra</strong> (VPC, redes privadas complexas) ou <strong>compliance</strong> específico fora do escopo da plataforma.</li>
+  </ul>
+</div>
+
+<h2>Como deve ser usada</h2>
+<ol>
+  <li><strong>Integra com o teu Git</strong> (GitHub/GitLab/Bitbucket). A cada <code>git push</code>, a Vercel cria um <em>preview</em> único.</li>
+  <li><strong>Configura variáveis de ambiente</strong> por Project/Environment (<code>Development</code>, <code>Preview</code>, <code>Production</code>).</li>
+  <li><strong>Usa Edge/Serverless</strong> apenas para o que precisa mesmo de lógica no servidor (API leve, webhooks, auth, reescritas).</li>
+  <li><strong>Cache primeiro</strong>: usa ISR/SSG quando possível e invalida de forma cirúrgica.</li>
+  <li><strong>Observabilidade</strong>: activa logs e métricas; mede tempo frio/quente das funções.</li>
+</ol>
+
+<h2>Perigos e “coisas a não fazer”</h2>
+<div class="danger">
+  <ul>
+    <li><strong>Não expor segredos</strong> em <code>.env</code> <em>commitado</em>. Usa o cofre de <em>Env Vars</em> da Vercel e <code>vercel env pull</code>.</li>
+    <li><strong>Não transformar o Serverless</strong> num “backend monolítico”. Funções devem ser <em>curtas</em> e <em>idempotentes</em>. Jobs longos → filas/background workers externos.</li>
+    <li><strong>Evita custos surpresa</strong>: SSR/Edge em todas as páginas + tráfego alto = conta a subir. Prefere SSG/ISR.</li>
+    <li><strong>Não dependas 100% de serviços proprietários</strong> (lock-in). Se possível, abstrai storage (usa adapters).</li>
+    <li><strong>GDPR/Regiões</strong>: valida locais de processamento/armazenamento; define regiões de execução quando relevante.</li>
+    <li><strong>Não ignores limites</strong> de <em>timeout</em>, memória e tamanho de pacote das funções.</li>
+  </ul>
+</div>
+
+<hr>
+
+<h2>Guia rápido (step-by-step) com exemplos</h2>
+
+<h3>Exemplo A — Deploy instantâneo de um site Next.js</h3>
+<ol>
+  <li>Cria projecto:
+    <pre><code>npx create-next-app@latest meu-site
+cd meu-site
+git init &amp;&amp; git add . &amp;&amp; git commit -m "init"</code></pre>
+  </li>
+  <li>Instala CLI e autentica:
+    <pre><code>npm i -g vercel
+vercel login</code></pre>
+  </li>
+  <li>Primeiro deploy (interactivo):
+    <pre><code>vercel</code></pre>
+    Responde às perguntas (linkar a um novo projecto, framework = Next.js).
+  </li>
+  <li>Produção:
+    <pre><code>vercel --prod</code></pre>
+  </li>
+  <li>Variáveis de ambiente:
+    <pre><code># no painel da Vercel (Project &gt; Settings &gt; Environment Variables)
+# depois sincroniza localmente:
+vercel env pull .env.local</code></pre>
+  </li>
+</ol>
+
+<h4>API route simples (Serverless)</h4>
+<pre><code>// app/api/ping/route.ts (Next.js 13+)
+export async function GET() {
+  return new Response(JSON.stringify({ ok: true, ts: Date.now() }), {
+    headers: { "content-type": "application/json" }
+  });
+}
+</code></pre>
+
+<h4>Middleware (Edge) para redireciono localidade → idioma</h4>
+<pre><code>// middleware.ts
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+export function middleware(req: NextRequest) {
+  const url = new URL(req.url);
+  if (url.pathname === "/") {
+    const lang = req.headers.get("accept-language")?.split(",")[0] || "en";
+    const prefix = lang.startsWith("pt") ? "pt" : "en";
+    return NextResponse.redirect(new URL(`/${prefix}`, req.url));
+  }
+  return NextResponse.next();
+}
+</code></pre>
+
+<h4>Configuração básica de project (opcional)</h4>
+<pre><code>{
+  "version": 2,
+  "builds": [{ "src": "package.json", "use": "@vercel/next" }],
+  "routes": [{ "src": "/sitemap.xml", "dest": "/api/sitemap" }]
+}
+</code></pre>
+
+<hr>
+
+<h3>Exemplo B — Conectar repositório e activar CI/CD</h3>
+<ol>
+  <li>Faz <em>push</em> do código:
+    <pre><code>git remote add origin https://github.com/&lt;user&gt;/meu-site.git
+git branch -M main
+git push -u origin main</code></pre>
+  </li>
+  <li>No painel Vercel: <em>New Project → Import Git Repo</em> → escolhe o repositório.</li>
+  <li>Define <strong>Environment Variables</strong> e clica <em>Deploy</em>.</li>
+  <li>Cada <code>git push</code> cria um <strong>Preview URL</strong> único. Para promover:
+    <pre><code>vercel promote &lt;preview-url&gt; --prod</code></pre>
+  </li>
+</ol>
+
+<hr>
+
+<h3>Exemplo C — Padrão de cache com ISR (Next.js)</h3>
+<p>Para páginas semi-estáticas que precisam de refrescar a cada X segundos:</p>
+<pre><code>// app/blog/[slug]/page.tsx
+export const revalidate = 60; // reconstroi no servidor a cada 60s
+export default async function Post({ params }) {
+  const data = await fetch(`https://api.site.com/posts/${params.slug}`, { cache: "no-store" }).then(r =&gt; r.json());
+  return &lt;Article data={data} /&gt;;
+}
+</code></pre>
+<p>Resultado: custo controlado (não SSR a cada hit) e conteúdo actualiza regularmente.</p>
+
+<hr>
+
+<h2>Boas práticas (checklist)</h2>
+<ul>
+  <li><strong>SSR onde precisa</strong>, <strong>SSG/ISR no resto</strong>.</li>
+  <li><strong>Regiões</strong>: define runtime/região quando a latência importa.</li>
+  <li><strong>Observabilidade</strong>: monitoriza erros e tempos de função.</li>
+  <li><strong>Segredos</strong> só em <em>Env Vars</em>; nunca em repositório.</li>
+  <li><strong>Builds</strong> rápidos: evita dependências pesadas e artesanato desnecessário em <code>postinstall</code>.</li>
+  <li><strong>Testes</strong> em Preview URLs antes de promover a produção.</li>
+</ul>
+
+<h2>Alternativas e complementos</h2>
+<p>Se precisares de <em>jobs</em> longos, <em>queues</em> ou <em>cron</em> robusto, combina Vercel (front-end/edge) com um <em>worker</em> dedicado (Fly.io, Render, Railway, AWS Lambda + SQS, Cloud Run, etc.). Para bases de dados, usa um DB gerido (Neon, PlanetScale, Supabase) ou Vercel Postgres/KV/Blob para MVPs.</p>
+
+<hr>
+
+<h2>Conclusão</h2>
+<p>A Vercel brilha quando queres <strong>velocidade de entrega</strong>, <strong>previews automáticos</strong> e um <strong>pipeline simples</strong> para front-ends modernos. Usa-a como <em>edge-shell</em> do teu produto: rápida na ponta, lógica leve em <em>functions</em> e trabalhos pesados em serviços próprios.</p>
+
+<p class="tags"><strong>Tags:</strong> #stack/vercel #stack/nextjs #tipo/guia #devops/ci-cd #web/performance</p>
+
+</body>
+</html>
