@@ -181,6 +181,45 @@
     return `rgba(96,165,250, ${a})`;
   }
 
+  // ---- Paleta por categoria (tech vibe)
+  const CATEGORY_COLORS = {
+    trading:       '#22d3ee', // cyan
+    apostas:       '#34d399', // emerald
+    poker:         '#f59e0b', // amber
+    'data-automacao': '#a78bfa', // violet
+    ia:            '#fb7185', // rose
+    escrita:       '#f472b6', // pink
+    arte:          '#60a5fa', // blue
+    musica:        '#c084fc', // violet light
+    dev:           '#38bdf8', // sky
+    projetos:      '#f43f5e', // red
+    vida:          '#10b981', // green
+    maker:         '#f97316', // orange
+    microgreens:   '#84cc16', // lime
+    sobre:         '#94a3b8', // slate
+    arquivo:       '#64748b'  // slate darker
+  };
+
+  function hexToRgb(hex){
+    const m = (hex||'').replace('#','');
+    const h = m.length===3 ? m.split('').map(c=>c+c).join('') : m.slice(0,6);
+    const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+    return {r,g,b};
+  }
+  function rgbToHex({r,g,b}){
+    const to = v => Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0');
+    return `#${to(r)}${to(g)}${to(b)}`;
+  }
+  // lighten base towards white by factor [0..1]
+  function lighten(hex, factor){
+    const {r,g,b} = hexToRgb(hex);
+    return rgbToHex({ r: r + (255 - r)*factor, g: g + (255 - g)*factor, b: b + (255 - b)*factor });
+  }
+  function hash01(str){
+    let h=0; for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i))>>>0; }
+    return (h % 1000)/1000; // 0..1
+  }
+
   // ---- Audio (tech beep on clicks)
   const AUDIO = { ctx: null, unlocked: false };
   function ensureAudio(){
@@ -364,8 +403,17 @@
   function colorFor(n){
     const cs = getComputedStyle(document.documentElement);
     if (n.kind==='owner') return cs.getPropertyValue('--owner').trim();
-    if (n.kind==='category') return cs.getPropertyValue('--cat').trim();
-    if (n.kind==='subcategory') return cs.getPropertyValue('--sub').trim();
+    if (n.kind==='doc') return cs.getPropertyValue('--doc').trim();
+    if (n.kind==='category'){
+      const slug = (n.slug || (n.label||'').toLowerCase()).trim();
+      return CATEGORY_COLORS[slug] || cs.getPropertyValue('--cat').trim();
+    }
+    if (n.kind==='subcategory'){
+      const base = CATEGORY_COLORS[n.category] || cs.getPropertyValue('--cat').trim() || '#38bdf8';
+      // tone per sub using hash: between +15% and +45% lighten
+      const t = 0.15 + 0.30 * hash01(n.id || n.label || '')
+      return lighten(base, t);
+    }
     return cs.getPropertyValue('--doc').trim();
   }
 
