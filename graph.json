@@ -558,6 +558,14 @@
       "path": "guia-git-github-basico.html"
     },
     {
+      "id": "doc:kubernetes-para-1-pessoa",
+      "label": "Kubernetes Para 1 Pessoa",
+      "kind": "doc",
+      "category": "arquivo",
+      "tags": [],
+      "path": "kubernetes-para-1-pessoa.html"
+    },
+    {
       "id": "doc:my-homepage-construcao-do-site",
       "label": "Construção do Site",
       "kind": "doc",
@@ -568,6 +576,23 @@
         "tipo/analise"
       ],
       "path": "MY-HOMEPAGE-construcao-do-site.html"
+    },
+    {
+      "id": "doc:numeraire-nmr",
+      "label": "Numeraire (NMR) — AI + Finance via Crowdsourced Models",
+      "kind": "doc",
+      "category": "trading",
+      "tags": [
+        "ia",
+        "crypto",
+        "numeraire",
+        "nmr",
+        "finance",
+        "hedge-fund",
+        "modelos",
+        "dados"
+      ],
+      "path": "numeraire-nmr.html"
     },
     {
       "id": "doc:oceanprotocol",
@@ -970,8 +995,18 @@
       "kind": "contains"
     },
     {
+      "source": "cat:arquivo",
+      "target": "doc:kubernetes-para-1-pessoa",
+      "kind": "contains"
+    },
+    {
       "source": "cat:dev",
       "target": "doc:my-homepage-construcao-do-site",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:trading",
+      "target": "doc:numeraire-nmr",
       "kind": "contains"
     },
     {
