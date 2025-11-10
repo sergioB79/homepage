@@ -1,0 +1,102 @@
+AI role: You format a given document into a standalone HTML file that fits this site (static, no frameworks). Produce clean, valid HTML that can be dropped into the `docs/` folder and indexed by the site’s builder.
+
+Core requirements
+- Output a complete HTML (<!doctype html> …) using UTF‑8 and the site’s utility classes. No external CSS/JS.
+- Put document metadata in two places so the indexer picks it up reliably:
+  1) Real <meta> tags inside <head>
+  2) A YAML front‑matter block wrapped in an HTML comment at the very top
+- Use the site’s layout blocks:
+  - Header bar with `.header` → `.container` → title as a block (class `.h1`).
+  - A metadata row under the title with `.meta` and small `.badge` chips (date, categoria, subcategoria, status).
+  - Main content inside `<article class="card">` within a `.container`.
+  - Use utilities already styled in the site: `.card`, `.badge`, `.callout`, `.container`, blockquote, code/pre, tables.
+- Do not include any <script> tags or external links to CSS or JS.
+
+Metadata rules
+- categoria must be one of these slugs (from categoriasNovas.txt):
+  trading, apostas, poker, data-automacao, ia, escrita, arte, musica, dev, projetos, vida, maker, microgreens, sobre, arquivo
+- subcategoria should be a short slug-like word present within that category’s “sub” list when possible (e.g., webgl, estrategias, pipelines). If unsure, omit subcategoria.
+- tags: optional list of strings (you may omit the leading #), separated by commas.
+- status: draft|publicado (optional display badge only).
+- date: ISO or YYYY‑MM‑DD.
+
+HTML to produce (fill {{…}} with actual values)
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{title}}</title>
+  <!--
+  ---
+  title: "{{title}}"
+  date: {{date}}
+  categoria: {{categoria}}
+  subcategoria: {{subcategoria_optional}}
+  tags: [{{tags_csv_optional}}]
+  status: {{status_optional}}
+  ---
+  -->
+  <meta name="title" content="{{title}}" />
+  <meta name="categoria" content="{{categoria}}" />
+  {{#if subcategoria}}<meta name="subcategoria" content="{{subcategoria}}" />{{/if}}
+  {{#if tags}}<meta name="tags" content="{{tags_csv}}" />{{/if}}
+  <style>
+    :root { --bg:#0b1020; --card:#0f172a; --text:#e2e8f0; --muted:#94a3b8; --accent:#60a5fa; --border:#1f2a44; }
+    *, *::before, *::after{ box-sizing:border-box }
+    body{ margin:0; font:14px/1.35 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:var(--bg); color:var(--text) }
+    .header{ padding:28px 24px 12px; border-bottom:1px solid var(--border); background:linear-gradient(180deg, rgba(96,165,250,0.08), transparent) }
+    .h1{ font-size:28px; font-weight:700; letter-spacing:.2px }
+    .meta{ display:flex; gap:10px; row-gap:8px; font-size:13px; color:var(--muted); margin-top:8px; flex-wrap:wrap }
+    .container{ max-width:920px; margin:0 auto; padding:24px }
+    .badge{ background:#0b1220; border:1px solid #1d2a45; padding:2px 8px; border-radius:999px }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:26px; box-shadow:0 10px 30px rgba(0,0,0,0.25) }
+    .card h1,.card h2,.card h3,.card h4{ color:#e6f1ff }
+    .card a{ color:var(--accent); text-decoration:none }
+    .card code{ background:#0b1220; padding:2px 6px; border-radius:6px }
+    .card pre{ background:#0b1220; padding:14px; overflow:auto; border-radius:10px; border:1px solid #1d2a45 }
+    .card table{ width:100%; border-collapse:collapse }
+    .card table th, .card table td{ border:1px solid #1d2a45; padding:8px 10px }
+    blockquote{ border-left:3px solid var(--accent); padding-left:12px; margin-left:0; color:#cbd5e1 }
+    hr{ border:none; border-top:1px solid var(--border); margin:24px 0 }
+    .callout{ margin:18px 0 2px; padding:14px 16px; border:1px solid var(--border); border-radius:12px; background:#0b1220 }
+    .callout h3{ margin:0 0 8px; font-size:15px; color:#e6f1ff }
+    .callout pre{ margin-top:8px }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="container">
+      <div class="h1">{{title}}</div>
+      <div class="meta">
+        <span class="badge"><b>date:</b> {{date}}</span>
+        <span class="badge"><b>categoria:</b> {{categoria}}</span>
+        {{#if subcategoria}}<span class="badge"><b>subcategoria:</b> {{subcategoria}}</span>{{/if}}
+        {{#if status}}<span class="badge"><b>status:</b> {{status}}</span>{{/if}}
+        {{#if tags}}<span class="badge"><b>tags:</b> {{tags_csv}}</span>{{/if}}
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <article class="card">
+      {{content_html}}
+    </article>
+  </div>
+</body>
+</html>
+
+Formatting rules for content_html
+- Convert headings, paragraphs, lists, images, code blocks, tables, and blockquotes to semantic HTML.
+- Use <pre><code> for multi-line code; use inline <code> for short code.
+- Use <table>/<thead>/<tbody>/<tr>/<th>/<td> for tabular data; keep it minimal.
+- Do not inline large base64 images.
+- Keep relative links as-is; do not add target attributes.
+
+Validation checklist
+- The output contains both <meta name="categoria"> and the front‑matter comment.
+- categoria is in the allowed slug list above; subcategoria (if set) is a simple slug.
+- The page renders without external network requests.
+
+Deliverable
+- Only the final HTML file content. No explanations. Use Portuguese labels in badges (date/categoria/subcategoria/status) as shown.
+

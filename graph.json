@@ -568,6 +568,14 @@
         "tipo/analise"
       ],
       "path": "MY-HOMEPAGE-construcao-do-site.html"
+    },
+    {
+      "id": "doc:oceanprotocol",
+      "label": "Ocean Protocol (OCEAN) — Monetização de Dados via Blockchain",
+      "kind": "doc",
+      "category": "trading",
+      "tags": [],
+      "path": "OceanProtocol.html"
     }
   ],
   "links": [
@@ -964,6 +972,11 @@
     {
       "source": "cat:dev",
       "target": "doc:my-homepage-construcao-do-site",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:trading",
+      "target": "doc:oceanprotocol",
       "kind": "contains"
     }
   ]
