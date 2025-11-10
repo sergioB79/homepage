@@ -61,9 +61,13 @@
     .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
     .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center}
     .kpi b{display:block;font-size:16px}
-    .legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
-    .dot{width:10px;height:10px;border-radius:50%}
-    .legend-item{display:flex;align-items:center;gap:6px;margin:2px 8px 2px 0}
+    .legend{display:block;margin-top:6px}
+    .legend-title{font-size:12px;color:#cdd6e0;margin:0 0 6px 0;letter-spacing:.3px}
+    .legend-scroll{max-height:220px;overflow:auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px 0}
+    .legend-list{list-style:none;margin:0;padding:0}
+    .legend-item{display:flex;align-items:center;gap:8px;padding:6px 2px 6px 0;cursor:pointer}
+    .legend-item:hover{background:rgba(255,255,255,0.03)}
+    .dot{width:11px;height:11px;border-radius:50%}
     .dot.sub{opacity:.85;border:1px solid rgba(0,0,0,.25)}
     .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
     button{background:#151b23;color:var(--fg);border:1px solid #243042;border-radius:10px;padding:8px 10px;cursor:pointer}
@@ -131,8 +135,9 @@
 
   <footer>Powered by <a href="https://github.com/vasturiano/3d-force-graph" target="_blank" rel="noreferrer">3d-force-graph</a></footer>
 
-  <script src="https://unpkg.com/3d-force-graph@1.73.0"></script>
-  <script>
+  <script type="module">
+  import ForceGraph3D from 'https://unpkg.com/3d-force-graph@1.73.0/dist/3d-force-graph.module.js';
+  import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   // ---- Estado global
   let Graph, data, ALL_NODES = new Map(), ALL_LINKS = [],
       FILTER = { term:"", category:"" },
@@ -511,27 +516,37 @@
     function buildLegend(){
       const legend = document.getElementById('legend');
       legend.textContent = '';
-      const add = (color, label, extraClass='')=>{
-        const item = document.createElement('span'); item.className = 'legend-item';
-        const dot = document.createElement('span'); dot.className = 'dot'+(extraClass?(' '+extraClass):''); dot.style.background = color; item.appendChild(dot);
-        const txt = document.createElement('span'); txt.className = 'muted'; txt.textContent = label; item.appendChild(txt);
-        legend.appendChild(item);
+      // Title
+      const title = document.createElement('div'); title.className='legend-title'; title.textContent = 'Categorias'; legend.appendChild(title);
+      const scroll = document.createElement('div'); scroll.className='legend-scroll'; legend.appendChild(scroll);
+      const ul = document.createElement('ul'); ul.className='legend-list'; scroll.appendChild(ul);
+
+      // Owner & Documento quick chips
+      const topRow = document.createElement('div'); topRow.style.display='flex'; topRow.style.gap='10px'; topRow.style.margin='0 0 6px 0'; legend.appendChild(topRow);
+      const quick = (color,label)=>{
+        const item = document.createElement('span'); item.className='legend-item'; item.style.padding='4px 6px'; item.style.cursor='default';
+        const dot = document.createElement('span'); dot.className='dot'; dot.style.background = color; item.appendChild(dot);
+        const txt = document.createElement('span'); txt.className='muted'; txt.textContent = label; item.appendChild(txt);
+        topRow.appendChild(item);
       };
-      // Owner & Documento
-      add(css().getPropertyValue('--owner').trim(), 'Autor');
-      add(css().getPropertyValue('--doc').trim(), 'Documento');
-      // Categorias
+      quick(css().getPropertyValue('--owner').trim(), 'Autor');
+      quick(css().getPropertyValue('--doc').trim(), 'Documento');
+
+      // Categories list
       const cats = data.nodes.filter(n=>n.kind==='category').map(n=>({ slug:n.slug||(n.label||'').toLowerCase(), label:n.label }));
       cats.sort((a,b)=> a.label.localeCompare(b.label,'pt-PT'));
       for (const c of cats){
         const base = CATEGORY_COLORS[c.slug] || css().getPropertyValue('--cat').trim() || '#38bdf8';
-        add(base, c.label);
-        // sub tom (mais claro)
-        const subTone = lighten(base, .30);
-        const subItem = document.createElement('span'); subItem.className='legend-item';
-        const d1 = document.createElement('span'); d1.className='dot sub'; d1.style.background = subTone; subItem.appendChild(d1);
-        const t1 = document.createElement('span'); t1.className='muted'; t1.textContent = 'Sub'; subItem.appendChild(t1);
-        legend.appendChild(subItem);
+        const li = document.createElement('li'); li.className='legend-item'; li.dataset.slug=c.slug;
+        const dot = document.createElement('span'); dot.className='dot'; dot.style.background = base; li.appendChild(dot);
+        const name = document.createElement('span'); name.textContent = c.label; li.appendChild(name);
+        const subDot = document.createElement('span'); subDot.className='dot sub'; subDot.style.background = lighten(base,.3); li.appendChild(subDot);
+        const subLbl = document.createElement('span'); subLbl.className='muted'; subLbl.textContent='sub'; li.appendChild(subLbl);
+        li.addEventListener('click', ()=>{
+          // click selects category filter
+          catSel.value = c.slug; FILTER.category = c.slug; computeVisibility();
+        });
+        ul.appendChild(li);
       }
     }
 
@@ -542,7 +557,37 @@
         links: ALL_LINKS.map(l=>({ ...l }))
       })
       .backgroundColor(getComputedStyle(document.documentElement).getPropertyValue('--bg').trim())
-      .nodeColor(n => colorFor(n))
+      .nodeThreeObject(n=>{
+        const color = colorFor(n);
+        let geo;
+        if (n.kind==='owner'){
+          geo = new THREE.SphereGeometry(7, 16, 16);
+        } else if (n.kind==='doc'){
+          geo = new THREE.SphereGeometry(2.6, 12, 12);
+        } else if (n.kind==='subcategory'){
+          // smaller, same family shape as category (icosahedron for visual coherence)
+          geo = new THREE.IcosahedronGeometry(2.8, 0);
+        } else if (n.kind==='category'){
+          // map some categories to distinctive shapes; fallback to box
+          const slug = (n.slug||'').toLowerCase();
+          if (slug==='dev') geo = new THREE.BoxGeometry(5,5,5);
+          else if (slug==='arte') geo = new THREE.IcosahedronGeometry(4.8, 0);
+          else if (slug==='ia') geo = new THREE.OctahedronGeometry(5, 0);
+          else if (slug==='trading') geo = new THREE.TetrahedronGeometry(5, 0);
+          else if (slug==='apostas') geo = new THREE.ConeGeometry(3.6, 6, 10);
+          else if (slug==='poker') geo = new THREE.DodecahedronGeometry(4.8, 0);
+          else if (slug==='data-automacao') geo = new THREE.CylinderGeometry(3.2, 3.2, 5.2, 12);
+          else if (slug==='maker') geo = new THREE.TorusGeometry(3.2, 1.0, 10, 16);
+          else if (slug==='microgreens') geo = new THREE.SphereGeometry(4.2, 16, 16);
+          else geo = new THREE.BoxGeometry(4.6,4.6,4.6);
+        } else {
+          geo = new THREE.SphereGeometry(3.2, 12, 12);
+        }
+        const mat = new THREE.MeshStandardMaterial({ color, metalness:0.15, roughness:0.45 });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.userData.__isNode = true;
+        return mesh;
+      })
       .nodeLabel(n=>`$${n.label}`.replace('$','') + (n.tags?.length?`\n#${n.tags.join(' #')}`:''))
       .linkColor(l=>{
         const accent = css().getPropertyValue('--accent').trim() || '#60a5fa';
@@ -612,6 +657,11 @@
       const owner = data.nodes.find(n=>n.kind==='owner'); if (!owner) return;
       const {x=0,y=0,z=0} = owner; Graph.cameraPosition({ x:x+100,y:y+100,z:z+100 }, {x,y,z}, 1000);
     });
+
+    // Iluminação básica para shapes 3D
+    const scene = Graph.scene();
+    const dir = new THREE.DirectionalLight(0xffffff, .85); dir.position.set(80,120,40); scene.add(dir);
+    scene.add(new THREE.AmbientLight(0xffffff, .35));
 
     // Visibilidade inicial
     computeVisibility();
