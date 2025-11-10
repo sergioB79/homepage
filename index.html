@@ -63,6 +63,8 @@
     .kpi b{display:block;font-size:16px}
     .legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
     .dot{width:10px;height:10px;border-radius:50%}
+    .legend-item{display:flex;align-items:center;gap:6px;margin:2px 8px 2px 0}
+    .dot.sub{opacity:.85;border:1px solid rgba(0,0,0,.25)}
     .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
     button{background:#151b23;color:var(--fg);border:1px solid #243042;border-radius:10px;padding:8px 10px;cursor:pointer}
     button:hover{border-color:#2f3f55}
@@ -116,12 +118,7 @@
       <div class="kpi"><span class="muted">Arestas</span><b id="kEdges">0</b></div>
       <div class="kpi"><span class="muted">Visíveis</span><b id="kVisible">0</b></div>
     </div>
-    <div class="legend">
-      <span class="dot" style="background:var(--owner)"></span><span class="muted">Autor</span>
-      <span class="dot" style="background:var(--cat)"></span><span class="muted">Categoria</span>
-      <span class="dot" style="background:var(--sub)"></span><span class="muted">Subcategoria</span>
-      <span class="dot" style="background:var(--doc)"></span><span class="muted">Documento</span>
-    </div>
+    <div class="legend" id="legend"></div>
     <label class="toggle"><input id="autorotate" type="checkbox" checked/> Rotação lenta</label>
     <label class="toggle"><input id="sparks" type="checkbox" checked/> Partículas nas arestas por tag</label>
     <div class="btns">
@@ -510,6 +507,34 @@
       opt.value = c.slug; opt.textContent = c.label; catSel.appendChild(opt);
     }
 
+    // Legenda dinâmica
+    function buildLegend(){
+      const legend = document.getElementById('legend');
+      legend.textContent = '';
+      const add = (color, label, extraClass='')=>{
+        const item = document.createElement('span'); item.className = 'legend-item';
+        const dot = document.createElement('span'); dot.className = 'dot'+(extraClass?(' '+extraClass):''); dot.style.background = color; item.appendChild(dot);
+        const txt = document.createElement('span'); txt.className = 'muted'; txt.textContent = label; item.appendChild(txt);
+        legend.appendChild(item);
+      };
+      // Owner & Documento
+      add(css().getPropertyValue('--owner').trim(), 'Autor');
+      add(css().getPropertyValue('--doc').trim(), 'Documento');
+      // Categorias
+      const cats = data.nodes.filter(n=>n.kind==='category').map(n=>({ slug:n.slug||(n.label||'').toLowerCase(), label:n.label }));
+      cats.sort((a,b)=> a.label.localeCompare(b.label,'pt-PT'));
+      for (const c of cats){
+        const base = CATEGORY_COLORS[c.slug] || css().getPropertyValue('--cat').trim() || '#38bdf8';
+        add(base, c.label);
+        // sub tom (mais claro)
+        const subTone = lighten(base, .30);
+        const subItem = document.createElement('span'); subItem.className='legend-item';
+        const d1 = document.createElement('span'); d1.className='dot sub'; d1.style.background = subTone; subItem.appendChild(d1);
+        const t1 = document.createElement('span'); t1.className='muted'; t1.textContent = 'Sub'; subItem.appendChild(t1);
+        legend.appendChild(subItem);
+      }
+    }
+
     // Montar grafo
     Graph = ForceGraph3D()(document.getElementById('scene'))
       .graphData({
@@ -590,6 +615,7 @@
 
     // Visibilidade inicial
     computeVisibility();
+    buildLegend();
 
     // Resize
     addEventListener('resize', ()=> Graph.width(innerWidth).height(innerHeight));
