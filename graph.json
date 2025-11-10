@@ -563,15 +563,30 @@
       "kind": "doc",
       "category": "dev",
       "subcategory": "webgl",
-      "tags": [],
+      "tags": [
+        "#creative-coding",
+        "#webgl",
+        "#shaders",
+        "#fractal",
+        "#kaleidoscope",
+        "#frontend"
+      ],
       "path": "Kaleido-Lab.html"
     },
     {
       "id": "doc:kubernetes-para-1-pessoa",
-      "label": "Kubernetes Para 1 Pessoa",
+      "label": "Kubernetes para 1 Pessoa: Quando Usar (e Quando é Overkill)",
       "kind": "doc",
-      "category": "arquivo",
-      "tags": [],
+      "category": "dev",
+      "subcategory": "devops",
+      "tags": [
+        "infra",
+        "kubernetes",
+        "docker",
+        "devops",
+        "ai-serving",
+        "arquitetura"
+      ],
       "path": "kubernetes-para-1-pessoa.html"
     },
     {
@@ -1009,7 +1024,7 @@
       "kind": "contains"
     },
     {
-      "source": "cat:arquivo",
+      "source": "cat:dev",
       "target": "doc:kubernetes-para-1-pessoa",
       "kind": "contains"
     },

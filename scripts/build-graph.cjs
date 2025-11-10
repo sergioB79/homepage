@@ -177,14 +177,20 @@ function parseDocMeta(absPath) {
   if (fm) {
     const body = fm[1];
     for (const line of body.split(/\r?\n/)) {
-      const mKV = line.match(/^([a-zA-Z_]+):\s*(.+)$/);
+      const ln = line.trim();
+      const mKV = ln.match(/^([a-zA-Z_]+):\s*(.+)$/);
       if (!mKV) continue;
       const k = mKV[1].toLowerCase();
       let v = mKV[2].trim();
       if (/^\[.*\]$/.test(v)) {
         // crude array parse: ["#a", "#b"] or ['#a', '#b']
         v = v.replace(/'/g, '"');
-        try { out[k] = JSON.parse(v); } catch { /* ignore */ }
+        try { out[k] = JSON.parse(v); }
+        catch {
+          // fallback: split by comma
+          out[k] = v.replace(/^\[|\]$/g,'')
+            .split(',').map(s=>s.replace(/[\#\"']/g,'').trim()).filter(Boolean);
+        }
       } else {
         v = v.replace(/^\"|\"$/g, '');
         out[k] = v;
