@@ -542,6 +542,18 @@
       "kind": "subcategory",
       "category": "arquivo",
       "about": "Rascunhos / Em Progresso"
+    },
+    {
+      "id": "doc:my-homepage-construcao-do-site",
+      "label": "Construção do Site",
+      "kind": "doc",
+      "category": "dev",
+      "subcategory": "webgl",
+      "tags": [
+        "stack/threejs",
+        "tipo/analise"
+      ],
+      "path": "MY-HOMEPAGE-construcao-do-site.html"
     }
   ],
   "links": [
@@ -924,6 +936,11 @@
       "source": "owner:sergio",
       "target": "cat:arquivo",
       "kind": "owns"
+    },
+    {
+      "source": "cat:dev",
+      "target": "doc:my-homepage-construcao-do-site",
+      "kind": "contains"
     }
   ]
 }
