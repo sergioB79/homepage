@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kubernetes para 1 Pessoa: Quando Usar (e Quando é Overkill)</title>
+  <!--
+  ---
+  title: "Kubernetes para 1 Pessoa: Quando Usar (e Quando é Overkill)"
+  date: 2025-11-10
+  categoria: dev
+  subcategoria: devops
+  tags: [infra, kubernetes, docker, devops, ai-serving, arquitetura]
+  status: publicado
+  ---
+  -->
+  <meta name="title" content="Kubernetes para 1 Pessoa: Quando Usar (e Quando é Overkill)" />
+  <meta name="categoria" content="dev" />
+  <meta name="subcategoria" content="devops" />
+  <meta name="tags" content="infra, kubernetes, docker, devops, ai-serving, arquitetura" />
+  <style>
+    :root { --bg:#0b1020; --card:#0f172a; --text:#e2e8f0; --muted:#94a3b8; --accent:#60a5fa; --border:#1f2a44; }
+    *, *::before, *::after{ box-sizing:border-box }
+    body{ margin:0; font:14px/1.35 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:var(--bg); color:var(--text) }
+    .header{ padding:28px 24px 12px; border-bottom:1px solid var(--border); background:linear-gradient(180deg, rgba(96,165,250,0.08), transparent) }
+    .h1{ font-size:28px; font-weight:700; letter-spacing:.2px }
+    .meta{ display:flex; gap:10px; row-gap:8px; font-size:13px; color:var(--muted); margin-top:8px; flex-wrap:wrap }
+    .container{ max-width:920px; margin:0 auto; padding:24px }
+    .badge{ background:#0b1220; border:1px solid #1d2a45; padding:2px 8px; border-radius:999px }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:26px; box-shadow:0 10px 30px rgba(0,0,0,0.25) }
+    .card h1,.card h2,.card h3,.card h4{ color:#e6f1ff }
+    .card a{ color:var(--accent); text-decoration:none }
+    .card code{ background:#0b1220; padding:2px 6px; border-radius:6px }
+    .card pre{ background:#0b1220; padding:14px; overflow:auto; border-radius:10px; border:1px solid #1d2a45; white-space:pre; }
+    .card table{ width:100%; border-collapse:collapse }
+    .card table th, .card table td{ border:1px solid #1d2a45; padding:8px 10px }
+    blockquote{ border-left:3px solid var(--accent); padding-left:12px; margin-left:0; color:#cbd5e1 }
+    hr{ border:none; border-top:1px solid var(--border); margin:24px 0 }
+    .callout{ margin:18px 0 2px; padding:14px 16px; border:1px solid var(--border); border-radius:12px; background:#0b1220 }
+    .callout h3{ margin:0 0 8px; font-size:15px; color:#e6f1ff }
+    .callout pre{ margin-top:8px }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="container">
+      <div class="h1">Kubernetes para 1 Pessoa: Quando Usar (e Quando é Overkill)</div>
+      <div class="meta">
+        <span class="badge"><b>date:</b> 2025-11-10</span>
+        <span class="badge"><b>categoria:</b> dev</span>
+        <span class="badge"><b>subcategoria:</b> devops</span>
+        <span class="badge"><b>status:</b> publicado</span>
+        <span class="badge"><b>tags:</b> infra, kubernetes, docker, devops, ai-serving, arquitetura</span>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <article class="card">
+      <p><strong>Resumo em 1 linha:</strong> Se trabalhas sozinho e tens poucas apps, <em>Kubernetes</em> é geralmente <strong>overkill</strong>. Usa <code>Docker</code> + <code>docker-compose</code>. Considera K8s quando planeias vender um produto multi-utilizador, precisas de alta disponibilidade real ou vais escalar jobs/serving de IA em várias máquinas (incl. GPU).</p>
+
+      <h2>O que é Kubernetes (K8s)</h2>
+      <p>Kubernetes é um orquestrador de <em>containers</em>: descreves o <em>estado desejado</em> (quantas réplicas, como expor, quando escalar) e o cluster mantém esse estado. É pensado para <strong>muitas</strong> apps/serviços, distribuição por vários servidores, <em>auto-healing</em> e <em>auto-scaling</em>.</p>
+
+      <h3>Peças base (30 segundos)</h3>
+      <ul>
+        <li><strong>Pod</strong>: unidade mínima que corre um ou mais containers.</li>
+        <li><strong>Deployment</strong>: garante N réplicas de um Pod.</li>
+        <li><strong>Service</strong>: endereço estável para falar com Pods.</li>
+        <li><strong>Ingress</strong>: gateway HTTP/HTTPS para o exterior.</li>
+        <li><strong>Node</strong>: máquina/VM do cluster.</li>
+      </ul>
+
+      <h2>Quando é Overkill (a solo)</h2>
+      <ul>
+        <li>Tens 1–5 serviços (ex.: webhook Flask, API pequena, NGINX) numa única VM.</li>
+        <li>Preferes simplicidade a uma plataforma complexa.</li>
+        <li>Os “picos” de tráfego são raros e toleras alguns minutos de <em>downtime</em> em manutenção.</li>
+      </ul>
+      <div class="callout">
+        <p><strong>Regra prática:</strong> Se consegues gerir tudo com 1 ficheiro <code>docker-compose.yml</code> e meia dúzia de <code>systemd timers</code>/scripts, estás melhor sem K8s.</p>
+      </div>
+
+      <h2>Quando Começa a Fazer Sentido (mesmo sozinho)</h2>
+      <ul>
+        <li><strong>Muitos microserviços</strong> (10+), cada um com versão e <em>lifecycle</em> próprios.</li>
+        <li><strong>Alta disponibilidade</strong> em múltiplas máquinas: auto-healing, <em>rolling updates</em>.</li>
+        <li><strong>Produto multi-cliente</strong> (multi-tenant) com isolamento (namespaces, quotas).</li>
+        <li><strong>AI/ML</strong>: <em>serving</em> de modelos à escala, <em>batch jobs</em> e <em>scheduling</em> para nós com GPU.</li>
+        <li>Queres <strong>aprender K8s</strong> porque fará parte do teu futuro stack.</li>
+      </ul>
+
+      <h2>Kubernetes e IA: onde encaixa</h2>
+      <ul>
+        <li><strong>Model serving</strong>: expor modelos via API com réplicas e <em>rollbacks</em>.</li>
+        <li><strong>GPU scheduling</strong>: agendar Pods em nós com GPU (operators e device plugins).</li>
+        <li><strong>Pipelines</strong>: Kubeflow/Ray para treino/avaliação distribuídos.</li>
+      </ul>
+
+      <h2>Compose vs. Kubernetes (comparação rápida)</h2>
+      <table>
+        <thead>
+          <tr><th>Critério</th><th>Docker Compose</th><th>Kubernetes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Complexidade</td><td>Baixa</td><td>Alta</td></tr>
+          <tr><td>Nº de serviços</td><td>1–10</td><td>10–100+</td></tr>
+          <tr><td>Alta disponibilidade</td><td>Limitada</td><td>Nativa (multi-node)</td></tr>
+          <tr><td>Auto-scaling</td><td>Manual</td><td>HPA/VPA</td></tr>
+          <tr><td>GPU</td><td>Manual</td><td>Agendamento e quotas</td></tr>
+          <tr><td>Curva de aprendizagem</td><td>Suave</td><td>Íngreme</td></tr>
+          <tr><td>Custos operacionais</td><td>Baixos</td><td>Médios/Altos</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Receita prática (hoje): Docker Compose</h2>
+      <p>Para um setup típico (reverse proxy + API + worker), algo assim resolve:</p>
+      <pre><code># docker-compose.yml
+services:
+  proxy:
+    image: nginx:alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports: ["80:80"]
+    depends_on: [api]
+    restart: unless-stopped
+
+  api:
+    build: ./api   # Dockerfile da tua API (Flask/FastAPI/Node)
+    env_file: .env
+    expose: ["8000"]
+    restart: unless-stopped
+
+  worker:
+    build: ./worker
+    env_file: .env
+    restart: unless-stopped</code></pre>
+
+      <p><strong>Comandos úteis</strong></p>
+      <pre><code>docker compose up -d                 # subir
+docker compose logs -f api          # ver logs
+docker compose pull &amp;&amp; docker compose up -d  # atualizar
+docker system prune -f              # limpar lixo periodicamente</code></pre>
+
+      <h2>Quando quiseres “provar” K8s sem dor</h2>
+      <ol>
+        <li>Instala <code>kind</code> ou <code>k3d</code> (um cluster local dentro do Docker).</li>
+        <li>Empacota a tua API num <code>Deployment</code> + <code>Service</code> + <code>Ingress</code>.</li>
+        <li>Brinca com <em>rollouts</em> e réplicas. Se gostares, só então pensa em EKS/GKE/AKS.</li>
+      </ol>
+
+      <h3>Exemplo mínimo em K8s</h3>
+      <pre><code># deploy-api.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: teu-registo.tld/minha-api:latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+spec:
+  selector:
+    app: api
+  ports:
+    - port: 80
+      targetPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api
+spec:
+  rules:
+    - host: api.teudominio.tld
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 80</code></pre>
+
+      <h2>Boas práticas (qualquer caminho)</h2>
+      <ul>
+        <li><strong>12-Factor</strong>: configs em variáveis de ambiente; imagens pequenas e reprodutíveis.</li>
+        <li><strong>Observabilidade</strong>: logs estruturados (JSON), healthchecks, métricas básicas (CPU/RAM/latência).</li>
+        <li><strong>Backups</strong>: base de dados e ficheiros críticos com rotação.</li>
+        <li><strong>Automação simples</strong>: um script <code>deploy.sh</code> já é meia-plataforma.</li>
+      </ul>
+
+      <h2>Conclusão</h2>
+      <p>Para uma operação a solo, <strong>Docker Compose</strong> dá-te 90% do valor com 10% da complexidade. <strong>Kubernetes</strong> compensa quando passas a plataforma com muitos serviços, clientes e requisitos de disponibilidade/escala (incluindo IA em GPU). Até lá, mantém simples — e prepara o código para escalar quando fizer sentido.</p>
+
+      <hr />
+
+      <h3>Assinatura do Site</h3>
+      <p>
+        Sérgio Batalha<br />
+        Rede interativa de categorias, notas e tags<br />
+        <a href="https://sergiob79.github.io/homepage/">https://sergiob79.github.io/homepage/</a>
+      </p>
+
+      <h3>Tags relacionadas</h3>
+      <ul>
+        <li>infra</li>
+        <li>kubernetes</li>
+        <li>docker</li>
+        <li>devops</li>
+        <li>ai-serving</li>
+        <li>arquitetura</li>
+      </ul>
+    </article>
+  </div>
+</body>
+</html>
