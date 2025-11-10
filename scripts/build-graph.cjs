@@ -138,13 +138,46 @@ function buildGraph(baseGraph, cats) {
   nodes.filter(n => n.kind === 'doc').forEach(d => {
     if (d.category && catIndex.has(d.category)) {
       links.push({ source: `cat:${d.category}`, target: d.id, kind: 'contains' });
-      if (d.subcategory) {
-        const knownSubs = subsByCat.get(d.category);
-        const subSlug = slugify(d.subcategory);
-        if (knownSubs && knownSubs.has(subSlug)) {
-          const subId = `sub:${d.category}:${subSlug}`;
-          links.push({ source: subId, target: d.id, kind: 'contains' });
+      // Subcategory linking with fuzzy match + tag inference
+      const knownSubs = subsByCat.get(d.category) || new Set();
+      const knownList = Array.from(knownSubs.values());
+      let subSlug = d.subcategory ? slugify(d.subcategory) : null;
+      if (subSlug && !knownSubs.has(subSlug)) {
+        // Try tag-driven scoring first to prefer specific matches like 'vercel'
+        let picked = null; let pickedScore = 0;
+        if (Array.isArray(d.tags) && d.tags.length){
+          const tagTokensArr = d.tags.flatMap(t => String(t).split(/[\s,#/]+/)).map(x=>slugify(x)).filter(Boolean);
+          const tagTokens = new Set(tagTokensArr);
+          for (const k of knownList){
+            let score = 0;
+            for (const t of tagTokens){ if (k.includes(t) || t.includes(k)) score++; }
+            if (tagTokens.has('vercel') && k.includes('vercel')) score += 2;
+            if (score > pickedScore){ pickedScore = score; picked = k; }
+          }
         }
+        if (pickedScore > 0) subSlug = picked;
+        else {
+          const fuzzy = knownList.find(k => k.includes(subSlug) || subSlug.includes(k));
+          if (fuzzy) subSlug = fuzzy; else subSlug = null;
+        }
+      }
+      if (!subSlug && Array.isArray(d.tags) && d.tags.length) {
+        const tagTokensArr = d.tags.flatMap(t => String(t).split(/[\s,#/]+/)).map(x=>slugify(x)).filter(Boolean);
+        const tagTokens = new Set(tagTokensArr);
+        // score known subs by token matches
+        let best = null; let bestScore = 0;
+        for (const k of knownList){
+          let score = 0;
+          for (const t of tagTokens){ if (k.includes(t) || t.includes(k)) score++; }
+          // small boost if explicit 'vercel' matches
+          if (tagTokens.has('vercel') && k.includes('vercel')) score += 2;
+          if (score > bestScore){ bestScore = score; best = k; }
+        }
+        if (bestScore > 0) subSlug = best;
+      }
+      if (subSlug && knownSubs.has(subSlug)) {
+        const subId = `sub:${d.category}:${subSlug}`;
+        links.push({ source: subId, target: d.id, kind: 'contains' });
       }
     } else if (d.category === 'arquivo') {
       // ensure arquivo category exists

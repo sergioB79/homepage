@@ -1054,12 +1054,22 @@
       "kind": "contains"
     },
     {
+      "source": "sub:trading:estrategias-smc-wyckoff-tendencia-reversao-breakouts",
+      "target": "doc:numeraire-nmr",
+      "kind": "contains"
+    },
+    {
       "source": "cat:trading",
       "target": "doc:oceanprotocol",
       "kind": "contains"
     },
     {
       "source": "cat:dev",
+      "target": "doc:vercel-para-humanos",
+      "kind": "contains"
+    },
+    {
+      "source": "sub:dev:github-vercel-netlify-ci-cd",
       "target": "doc:vercel-para-humanos",
       "kind": "contains"
     }
