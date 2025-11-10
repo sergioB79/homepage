@@ -1,0 +1,25 @@
+Boas, Lucas!
+
+Deixo-te as contas. Continuamos basicamente no mesmo ponto, mas cada vez mais perto da linha preta (media do preço) para voltarmos a andar. Em agosto ainda apanhaste duas semanas com o comboio a rolar; depois fui de férias e, com o caos no ouro, ficou impossível entrar de novo sem termos níveis nestes novos máximos de preço.
+Resumindo: Para 2 semanas foi muito bom; para 3 meses sabe a pouco.
+
+Entretanto, já tenho várias pessoas do comboio a pedir um sistema novo. Andei a desenhar algo diferente do Comboio e do Foguetão — um meio-termo:
+
+Bot focado só em GER40 (DAX) e S&P 500
+Entra apenas em setups com payoff 1:5–7
+Risco fixo: 2% por trade
+Média ~4 trades por ativo/semana (≈8/semana)
+Win rate previsto >55%
+
+Projeção a 3 meses (≈12 semanas ≈ 96 trades)
+Isto é matemática teórica, sem comissões/slippage, só para termos ordem de grandeza:
+
+Se o ganho médio efetivo por vencedor for 1:2 → EV ≈ +1,3% por trade ⇒ em 96 trades dá algo como ~x3,5 do capital.
+
+Se for 1:3 → EV ≈ +2,4% por trade ⇒ ~x9–10.
+
+Se for mesmo 1:6 → EV ≈ +5,7% por trade ⇒ cresce de forma irrealista no papel; na prática a gestão, falhas e custos baixam este número.
+
+Nada garantido, claro — mas as odds são boas se o bot mantiver disciplina nos filtros.
+
+Se te interessar, apita.

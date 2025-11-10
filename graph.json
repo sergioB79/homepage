@@ -558,6 +558,15 @@
       "path": "guia-git-github-basico.html"
     },
     {
+      "id": "doc:kaleido-lab",
+      "label": "KaleidoLab — Manual do Utilizador",
+      "kind": "doc",
+      "category": "dev",
+      "subcategory": "webgl",
+      "tags": [],
+      "path": "Kaleido-Lab.html"
+    },
+    {
       "id": "doc:kubernetes-para-1-pessoa",
       "label": "Kubernetes Para 1 Pessoa",
       "kind": "doc",
@@ -992,6 +1001,11 @@
     {
       "source": "sub:dev:github-vercel-netlify-ci-cd",
       "target": "doc:guia-git-github-basico",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:dev",
+      "target": "doc:kaleido-lab",
       "kind": "contains"
     },
     {

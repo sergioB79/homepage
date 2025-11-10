@@ -1,0 +1,194 @@
+<!doctype html>
+<!--
+---
+title: "KaleidoLab — Manual do Utilizador"
+categoria: dev
+subcategoria: webgl
+status: published
+date: 2025-11-10
+tags: ["#creative-coding", "#webgl", "#shaders", "#fractal", "#kaleidoscope", "#frontend"]
+---
+-->
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="title" content="KaleidoLab — Manual do Utilizador">
+  <meta name="description" content="Guia completo do KaleidoLab: o gerador WebGL de caleidoscópios e fractais. Explica todos os controlos, truques de exportação e resolução de problemas.">
+  <meta name="categoria" content="dev">
+  <meta name="subcategoria" content="webgl">
+  <meta name="status" content="published">
+  <meta name="date" content="2025-11-10">
+  <meta name="tags" content="#creative-coding, #webgl, #shaders, #fractal, #kaleidoscope, #frontend">
+  <style>
+    :root{--fg:#111827;--muted:#6b7280;--line:#e5e7eb;--bg:#fff;--accent:#11182710}
+    body{font:16px/1.7 system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--fg);margin:0;padding:32px}
+    main{max-width:900px;margin:auto}
+    h1{font-size:clamp(28px,4vw,40px);line-height:1.1;margin:.2em 0}
+    h2{margin-top:2.2em}
+    h3{margin-top:1.4em}
+    p.lead{color:#374151;font-size:1.05rem}
+    code,kbd{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:.1em .35em;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    pre{background:#0b0f13;color:#e5e7eb;border-radius:12px;padding:16px;overflow:auto;border:1px solid #11182733}
+    .note{background:#f8fafc;border-left:4px solid #11182722;padding:12px 14px;border-radius:8px}
+    .grid{display:grid;gap:12px}
+    .grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    ul{margin: .5em 0 .5em 1.25em}
+    li{margin:.2em 0}
+    table{width:100%;border-collapse:collapse;margin:12px 0}
+    th,td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+    .kbd{font-weight:600}
+  </style>
+</head>
+<body>
+<main>
+
+<h1>KaleidoLab — Manual do Utilizador</h1>
+<p class="lead">
+O <strong>KaleidoLab</strong> é um gerador em tempo real de padrões caleidoscópicos e fractais, feito em WebGL. Este manual explica cada controlo, como exportar imagens e animações, e como resolver os problemas mais comuns.
+</p>
+
+<div class="note">
+<strong>Resumo rápido:</strong> ajusta os <em>Segments</em> e <em>Mirror</em> para o efeito caleidoscópico; usa os <em>Fractal sliders</em> (Octaves, Lacunarity, Gain, Warp, Seed) para o detalhe; escolhe uma <em>Palette</em> e faz <em>Download PNG</em> ou <em>Export Animation</em>.
+</div>
+
+<h2>1) Como funciona (por dentro, em 30s)</h2>
+<ul>
+  <li>Um <em>fragment shader</em> desenha a imagem inteira no GPU, por frame.</li>
+  <li>As coordenadas polares são “dobradas” por segmentos (simetria do caleidoscópio).</li>
+  <li>O detalhe vem de <em>fBm (fractal Brownian motion)</em>, controlada por <em>octaves</em>, <em>lacunarity</em>, <em>gain</em> e <em>warp</em>.</li>
+  <li>A cor é mapeada por <em>palettes</em> e ajustada com <em>contrast</em>, <em>saturation</em> e <em>brightness</em>.</li>
+</ul>
+
+<h2>2) Painel de Controlo</h2>
+
+<h3>Canvas</h3>
+<div class="grid cols-2">
+  <div>
+    <ul>
+      <li><strong>Width / Height</strong> — Define o tamanho (em píxeis) da exportação PNG/vídeo.</li>
+      <li><strong>Apply Size</strong> — Aplica o tamanho exato inserido.</li>
+      <li><strong>Fit Window</strong> — Ajusta ao tamanho visível (ótimo para explorar).</li>
+    </ul>
+  </div>
+  <div class="note">Sugestão: explora com <em>Fit Window</em>; antes de exportar, usa <em>Width/Height</em> com o tamanho final pretendido.</div>
+</div>
+
+<h3>Symmetry & Motion</h3>
+<ul>
+  <li><strong>Segments</strong> — Número de fatias da simetria radial. Mais segmentos = padrões mais complexos.</li>
+  <li><strong>Mirror</strong> — Ativa/desativa espelhamento dentro de cada segmento.</li>
+  <li><strong>Rotation</strong> — Velocidade de rotação angular do padrão (pode ser negativa).</li>
+  <li><strong>Zoom</strong> — Aproxima/afasta o domínio fractal.</li>
+  <li><strong>Animate</strong> — Liga/desliga animação no tempo.</li>
+  <li><strong>Time Speed</strong> — Escala a velocidade do tempo (0 = estático).</li>
+</ul>
+
+<h3>Fractal (fBm)</h3>
+<ul>
+  <li><strong>Octaves</strong> — Quantas camadas de ruído se somam. Mais octaves = mais detalhe (custo ↑).</li>
+  <li><strong>Lacunarity</strong> — Fator de aumento de frequência entre octaves (estrutura).</li>
+  <li><strong>Gain</strong> — Quanta intensidade cada octave seguinte adiciona (contraste do detalhe).</li>
+  <li><strong>Warp</strong> — Distorção do espaço (domain warping). Valores altos produzem remoinhos/fluxos.</li>
+  <li><strong>Seed</strong> — “Aleatoriedade” reprodutível do padrão.</li>
+</ul>
+
+<h3>Palette</h3>
+<ul>
+  <li><strong>Palette</strong> — Aurora, Magma, Ocean, Neon, Pastel.</li>
+  <li><strong>Contrast</strong> — Aumenta/diminui o contraste global.</li>
+  <li><strong>Saturation</strong> — Mais/menos saturação de cor.</li>
+  <li><strong>Brightness</strong> — Luminosidade final.</li>
+  <li><strong>🎲 (Shuffle)</strong> — Aleatoriza um conjunto agradável de parâmetros.</li>
+</ul>
+
+<h3>Output</h3>
+<ul>
+  <li><strong>Download PNG</strong> — Exporta uma imagem com o <em>tamanho atual do canvas</em>.</li>
+  <li><strong>Pause</strong> — Pausa/resume o desenho (útil para congelar um momento).</li>
+  <li><strong>Duration (s)</strong> — Duração da animação a exportar.</li>
+  <li><strong>FPS</strong> — Frames por segundo do vídeo.</li>
+  <li><strong>Format</strong> — Formato do vídeo (WebM/VP9, VP8 ou Auto). O browser escolhe o que suporta.</li>
+  <li><strong>Export Animation</strong> — Grava a animação do canvas e descarrega um <code>.webm</code>.</li>
+</ul>
+
+<h3>Presets & Reset</h3>
+<ul>
+  <li><strong>Preset: Soft</strong> — Tons suaves, detalhe moderado, mais “zen”.</li>
+  <li><strong>Preset: Vivid</strong> — Cores vivas, contraste mais forte, mais movimento.</li>
+  <li><strong>Reset</strong> — Repõe valores padrão sem quebrar os controlos.</li>
+</ul>
+
+<h2>3) Exportação — boas práticas</h2>
+
+<h3>Imagens (PNG)</h3>
+<ol>
+  <li>Escolhe o aspeto final e clica <strong>Fit Window</strong> para explorar.</li>
+  <li>Antes de exportar: define <strong>Width/Height</strong> com o tamanho final (ex.: 3840×2160).</li>
+  <li>Clica <strong>Download PNG</strong>. Se o browser queimar a “drawing buffer”, a app já preserva o frame.</li>
+</ol>
+
+<h3>Vídeo (WebM)</h3>
+<ol>
+  <li>Define <strong>Duration</strong> e <strong>FPS</strong> (ex.: 8s a 30 fps).</li>
+  <li>Deixa <strong>Animate</strong> ligado. O export força a animação enquanto grava.</li>
+  <li>Carrega em <strong>Export Animation</strong>. O botão mostra <em>Recording…</em> e descarrega <code>.webm</code>.</li>
+</ol>
+<p>
+Queres MP4/H.264? Converte o <code>.webm</code> com o HandBrake/FFmpeg:
+</p>
+<pre>ffmpeg -i kaleidolab_8s_30fps.webm -c:v libx264 -pix_fmt yuv420p -crf 18 -preset slow kaleidolab.mp4</pre>
+
+<h2>4) Performance e qualidade</h2>
+<ul>
+  <li><strong>Octaves</strong> elevadas + <strong>Warp</strong> alto = custo maior. Sobe FPS reduzindo <em>Octaves</em> ou <em>Lacunarity/Gain</em>.</li>
+  <li><strong>Segments</strong> muito alto pode exigir GPU melhor. Ajusta por tentativa/erro.</li>
+  <li>Para <strong>still frames</strong> enormes (8K+), define o tamanho, pausa a animação e exporta o PNG.</li>
+</ul>
+
+<h2>5) Resolução de Problemas</h2>
+<table>
+  <thead><tr><th>Problema</th><th>Causa provável</th><th>Solução</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>PNG sai preto</td>
+      <td>WebGL limpa o buffer antes do snapshot</td>
+      <td>Já está com <em>preserveDrawingBuffer</em>; tenta clicar de novo ou exportar com a animação em pausa</td>
+    </tr>
+    <tr>
+      <td>Export Animation não descarrega</td>
+      <td>Browser sem <code>MediaRecorder</code> ou sem codec suportado</td>
+      <td>Usa Chrome/Edge/Firefox recentes ou exporta PNGs e converte em vídeo</td>
+    </tr>
+    <tr>
+      <td>Canvas preto</td>
+      <td>GPU/driver bloqueou WebGL ou shader não compilou</td>
+      <td>Recarrega a página; testa noutro browser; reduz parâmetros (Segments / Octaves)</td>
+    </tr>
+    <tr>
+      <td>Botões não respondem</td>
+      <td>Algum erro JavaScript</td>
+      <td>Abre a consola (F12) e reporta a mensagem para correção</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>6) Dicas rápidas</h2>
+<ul>
+  <li><strong>Seed</strong> dá-te variações infinitas mantendo “o estilo”.</li>
+  <li><strong>Rotation</strong> muito baixo + <strong>Time Speed</strong> suave → vídeos hipnóticos.</li>
+  <li><strong>Contrast</strong> & <strong>Saturation</strong> afinam o look para impressão ou ecrã.</li>
+  <li>Guarda combos preferidos tirando notas dos valores (em breve: presets com JSON).</li>
+</ul>
+ </p>
+ </p>
+
+ <p>
+        Sérgio Batalha<br />
+        Rede interativa de categorias, notas e tags<br />
+        <a href="https://sergiob79.github.io/homepage/">https://sergiob79.github.io/homepage/</a>
+ </p>
+
+</main>
+</body>
+</html>
