@@ -327,7 +327,9 @@
   }
 
   // Inicialização
-  fetch('graph.json').then(r=>r.json()).then(async json=>{
+  fetch(`graph.json?ts=${Date.now()}`, { cache: 'no-store' })
+    .then(r=>{ if(!r.ok) throw new Error('Failed to load graph.json'); return r.json(); })
+    .then(async json=>{
     // Tentar ler categoriasNovas.txt e gerar subcategorias
     async function tryAugmentWithCategories(j){
       // If subcategories already exist in graph.json (built), skip augment
@@ -404,6 +406,7 @@
     // KPIs
     document.getElementById('kNodes').textContent = data.nodes.length;
     document.getElementById('kEdges').textContent = data.links.length;
+    console.log(`Loaded graph: nodes=${data.nodes.length}, links=${data.links.length}`);
 
     // Popular categorias (usar slug quando existir)
     const catSel = document.getElementById('category');
@@ -483,6 +486,13 @@
 
     // Resize
     addEventListener('resize', ()=> Graph.width(innerWidth).height(innerHeight));
+  })
+  .catch(err=>{
+    console.error('Error loading graph.json:', err);
+    const kN = document.getElementById('kNodes');
+    const kE = document.getElementById('kEdges');
+    if(kN) kN.textContent = '—';
+    if(kE) kE.textContent = '—';
   });
   </script>
 </body>

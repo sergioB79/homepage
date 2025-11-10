@@ -1,0 +1,191 @@
+<!--
+---
+title: "Git & GitHub — Guia rápido prático"
+categoria: dev
+subcategoria: github-vercel-netlify-ci-cd
+tags: ["#stack/git", "#tool/github", "#tipo/guia", "#fluxo/ci-cd"]
+---
+-->
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="title" content="Git & GitHub — Guia rápido prático">
+  <meta name="categoria" content="dev">
+  <meta name="subcategoria" content="github-vercel-netlify-ci-cd">
+  <meta name="tags" content="#stack/git, #tool/github, #tipo/guia, #fluxo/ci-cd">
+  <title>Git & GitHub — Guia rápido prático</title>
+  <style>
+    :root{--bg:#0b0d10;--fg:#e8eef2;--muted:#a9b2ba;--card:#12161b;--accent:#5ad29f}
+    html,body{background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;margin:0;padding:0}
+    article{max-width:880px;margin:0 auto;padding:2.5rem 1.25rem}
+    h1{font-size:2rem;margin:0 0 1rem}
+    h2{font-size:1.4rem;margin:2rem 0 .5rem;color:var(--accent)}
+    p,li,code,pre{font-size:1rem}
+    code{background:#0f141a;padding:.15rem .4rem;border-radius:.35rem}
+    pre{background:var(--card);padding:1rem;border-radius:.75rem;overflow:auto}
+    .muted{color:var(--muted)}
+    .step{display:flex;gap:.75rem;align-items:flex-start;margin:.5rem 0}
+    .step .n{background:var(--accent);color:#042;min-width:1.7rem;height:1.7rem;border-radius:.4rem;display:grid;place-items:center;font-weight:700}
+    .card{background:var(--card);padding:1rem 1.1rem;border-radius:.9rem;margin:1rem 0}
+    details{background:var(--card);border-radius:.75rem;padding:.75rem 1rem}
+    details+details{margin-top:.5rem}
+    summary{cursor:pointer;font-weight:600}
+    a{color:var(--accent);text-decoration:none}
+    .tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+    .tag{border:1px solid #24303a;color:var(--muted);padding:.15rem .5rem;border-radius:999px}
+    hr{border:none;border-top:1px solid #1b222a;margin:2rem 0}
+    .kbd{border:1px solid #3a4350;background:#0e1318;border-bottom-width:3px;padding:0 .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body>
+<article>
+  <header>
+    <h1>Git & GitHub — Guia rápido prático</h1>
+    <p class="muted">O mínimo que precisas para criar um repositório, enviar alterações e trabalhar com branches — sem jargão desnecessário.</p>
+  </header>
+
+  <section class="card">
+    <h2>1) Criar repositório novo no GitHub e enviar a tua pasta</h2>
+    <div class="step"><div class="n">1</div><div>Cria o repositório no GitHub (sem <em>Initialize with README</em> para evitar conflitos).</div></div>
+    <div class="step"><div class="n">2</div><div>No terminal, dentro da tua pasta:</div></div>
+<pre><code>git init
+git add .
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/&lt;utilizador&gt;/&lt;repo&gt;.git
+git push -u origin main</code></pre>
+    <p><strong>Dica:</strong> Se preferires SSH, usa <code>git@github.com:&lt;utilizador&gt;/&lt;repo&gt;.git</code> e adiciona a tua chave em <span class="kbd">GitHub &rarr; Settings &rarr; SSH keys</span>.</p>
+  </section>
+
+  <section class="card">
+    <h2>2) Ligar um projecto já existente ao GitHub</h2>
+<pre><code># já tens commits locais, só falta o remoto
+git remote add origin https://github.com/&lt;utilizador&gt;/&lt;repo&gt;.git
+git branch -M main
+git push -u origin main</code></pre>
+  </section>
+
+  <section class="card">
+    <h2>3) Fluxo do dia-a-dia (editar &rarr; commit &rarr; enviar)</h2>
+<pre><code>git status               # ver o que mudou
+git add .                # ou: git add ficheiro1 ficheiro2
+git commit -m "Descrição curta e clara"
+git pull --rebase        # traz do remoto e mantém histórico limpo
+git push                 # envia para o GitHub</code></pre>
+    <p><strong>Mensagens de commit:</strong> pensa em “o quê + porquê” (ex.: <em>fix: corrige path do build no Windows</em>).</p>
+  </section>
+
+  <section class="card">
+    <h2>4) Branches (trabalhar sem partir a <code>main</code>)</h2>
+<pre><code># criar e mudar para uma nova branch
+git checkout -b feat/nova-pagina
+
+# trabalhar, fazer commits…
+git push -u origin feat/nova-pagina   # publica a branch no GitHub
+
+# abrir Pull Request no GitHub e, depois de aprovado:
+git checkout main
+git pull
+git merge --ff-only feat/nova-pagina  # integra de forma linear
+git push
+</code></pre>
+    <p><strong>Regra simples:</strong> 1 tarefa = 1 branch. Evita branches gigantes.</p>
+  </section>
+
+  <section class="card">
+    <h2>5) .gitignore essencial</h2>
+<pre><code># Node
+node_modules/
+dist/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db</code></pre>
+    <p>Adiciona antes do primeiro commit, ou faz um novo commit “<em>chore: add .gitignore</em>”.</p>
+  </section>
+
+  <section class="card">
+    <h2>6) Autenticação: HTTPS vs SSH</h2>
+    <ul>
+      <li><strong>HTTPS</strong>: usa o teu utilizador e um <em>Personal Access Token</em> como “password”.</li>
+      <li><strong>SSH</strong>: login por chave (sem pedir password cada push). Recomendado para uso diário.</li>
+    </ul>
+<pre><code># gerar chave SSH moderna
+ssh-keygen -t ed25519 -C "o_teu_email"
+# copia a chave pública (~/.ssh/id_ed25519.pub) para o GitHub</code></pre>
+  </section>
+
+  <section class="card">
+    <h2>7) Renomear a branch principal para <code>main</code></h2>
+<pre><code>git branch -M main
+git push -u origin main
+# no GitHub: Settings &rarr; Branches &rarr; Default branch &rarr; main</code></pre>
+  </section>
+
+  <section class="card">
+    <h2>8) Resolver conflitos de forma tranquila</h2>
+<pre><code>git pull --rebase         # rebase é mais limpo
+# se houver conflitos:
+git status
+# edita os ficheiros marcados com &lt;&lt;&lt;&lt;&lt;&lt;&lt; e &gt;&gt;&gt;&gt;&gt;&gt;&gt;
+git add &lt;ficheiros_resolvidos&gt;
+git rebase --continue
+
+# para desistir e voltar atrás:
+git rebase --abort</code></pre>
+    <p class="muted">Se já partilhaste commits e não queres reescrever histórico, usa <code>git pull</code> (merge normal).</p>
+  </section>
+
+  <section class="card">
+    <h2>9) Publicar só uma subpasta (opcional)</h2>
+<pre><code># a partir do repo raiz
+git subtree split --prefix=caminho/da/subpasta -b temp-push
+git push -u origin temp-push:main
+git branch -D temp-push</code></pre>
+  </section>
+
+  <section class="card">
+    <h2>10) Comandos rápidos que salvam o dia</h2>
+<pre><code>git remote -v                  # ver remotos
+git log --oneline --graph -n 10
+git restore &lt;ficheiro&gt;         # desfaz alterações não adicionadas
+git restore --staged &lt;ficheiro&gt;# tira do stage
+git commit --amend -m "msg"    # corrige última msg
+git config --global core.longpaths true   # Windows: ficheiros longos</code></pre>
+  </section>
+
+  <details>
+    <summary>Erros comuns &rarr; soluções rápidas</summary>
+    <ul>
+      <li><strong>remote ref main não existe</strong>: o remoto está vazio. Faz primeiro um commit e <code>git push -u origin main</code>.</li>
+      <li><strong>refusing to merge unrelated histories</strong>: usa <code>git pull --allow-unrelated-histories</code> e resolve conflitos.</li>
+      <li><strong>Updates were rejected</strong>: faz <code>git pull --rebase</code> antes do <code>git push</code>.</li>
+      <li><strong>Ficheiro &gt; 100MB</strong>: ativa Git LFS (<code>git lfs track "*.psd"</code>).</li>
+    </ul>
+  </details>
+
+  <hr>
+  <footer>
+    <p><strong>Metadados</strong> (para o teu builder):</p>
+    <ul>
+      <li>categoria: <code>dev</code></li>
+      <li>subcategoria: <code>github-vercel-netlify-ci-cd</code></li>
+    </ul>
+    <div class="tags">
+      <span class="tag">#stack/git</span>
+      <span class="tag">#tool/github</span>
+      <span class="tag">#tipo/guia</span>
+      <span class="tag">#fluxo/ci-cd</span>
+    </div>
+  </footer>
+</article>
+</body>
+</html>

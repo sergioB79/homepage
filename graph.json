@@ -544,6 +544,20 @@
       "about": "Rascunhos / Em Progresso"
     },
     {
+      "id": "doc:guia-git-github-basico",
+      "label": "Git & GitHub — Guia rápido prático",
+      "kind": "doc",
+      "category": "dev",
+      "subcategory": "github-vercel-netlify-ci-cd",
+      "tags": [
+        "#stack/git",
+        "#tool/github",
+        "#tipo/guia",
+        "#fluxo/ci-cd"
+      ],
+      "path": "guia-git-github-basico.html"
+    },
+    {
       "id": "doc:my-homepage-construcao-do-site",
       "label": "Construção do Site",
       "kind": "doc",
@@ -936,6 +950,16 @@
       "source": "owner:sergio",
       "target": "cat:arquivo",
       "kind": "owns"
+    },
+    {
+      "source": "cat:dev",
+      "target": "doc:guia-git-github-basico",
+      "kind": "contains"
+    },
+    {
+      "source": "sub:dev:github-vercel-netlify-ci-cd",
+      "target": "doc:guia-git-github-basico",
+      "kind": "contains"
     },
     {
       "source": "cat:dev",
