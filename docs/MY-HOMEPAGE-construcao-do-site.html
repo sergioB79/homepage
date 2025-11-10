@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Construção do Site</title>
+  <style>
+:root {
+  --bg: #0b1020;
+  --card: #0f172a;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #60a5fa;
+  --border: #1f2a44;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background: var(--bg); color: var(--text); }
+.header { padding: 28px 24px 12px 24px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(96,165,250,0.08), transparent); }
+.h1 { font-size: 28px; font-weight: 700; letter-spacing: 0.2px; }
+.meta { display: flex; gap: 10px; row-gap: 8px; font-size: 13px; color: var(--muted); margin-top: 8px; flex-wrap: wrap; }
+.container { max-width: 920px; margin: 0 auto; padding: 24px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 26px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+.card h1, .card h2, .card h3, .card h4 { color: #e6f1ff; }
+.card a { color: var(--accent); text-decoration: none; }
+.card code { background: #0b1220; padding: 2px 6px; border-radius: 6px; }
+.card pre { background: #0b1220; padding: 14px; overflow: auto; border-radius: 10px; border: 1px solid #1d2a45; }
+.card table { width: 100%; border-collapse: collapse; }
+.card table th, .card table td { border: 1px solid #1d2a45; padding: 8px 10px; }
+blockquote { border-left: 3px solid var(--accent); padding-left: 12px; margin-left: 0; color: #cbd5e1; }
+hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+.footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px 0 60px; }
+.badge { background: #0b1220; border: 1px solid #1d2a45; padding: 2px 8px; border-radius: 999px; }
+.callout { margin: 18px 0 2px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: #0b1220; }
+.callout h3 { margin: 0 0 8px 0; font-size: 15px; color: #e6f1ff; }
+.callout pre { margin-top: 8px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="container">
+      <div class="h1">Construção do Site</div>
+      <div class="meta"><span class='badge'><b>date:</b> 2025-11-09</span> <span class='badge'><b>categoria:</b> dev</span> <span class='badge'><b>subcategoria:</b> web</span> <span class='badge'><b>status:</b> publicado</span></div>
+    </div>
+  </div>
+  <div class="container">
+    <article class="card">
+      
+<div class="callout">
+  <h3>Supported metadata formats</h3>
+  <div>Usa YAML front matter no topo do ficheiro ou meta tags HTML em qualquer parte.</div>
+  <pre><code>YAML front matter no topo do ficheiro:
+title: "Meu Título"
+categoria: dev
+subcategoria: webgl
+tags: ["#stack/threejs", "#tipo/analise"]
+
+Ou tags HTML em qualquer lugar:
+&lt;meta name="title" content="Meu Título"&gt;
+&lt;meta name="categoria" content="dev"&gt;
+&lt;meta name="subcategoria" content="webgl"&gt;
+&lt;meta name="tags" content="#stack/threejs, #tipo/analise"&gt;
+</code></pre>
+</div>
+
+      <h1>Construção do Site</h1><p>Esta página documenta **como o site está montado**, para que qualquer futura alteração seja simples e previsível. É também um teste ao pipeline de conteúdo + grafo.</p><h2>Objetivos</h2><p>* Homepage minimal: **título + grafo** como menu interativo.
+* **Pesquisa** por texto, **filtros** por categoria/tags.
+* **Auto‑atualização**: ao adicionar um `.md` na pasta `content/`, o site recompila e o grafo reflete novas ligações.</p><h2>Stack</h2><p>* **Next.js** (ou outro static site): rotas de páginas + geração estática.
+* **Tailwind** para estilo rápido.
+* **react-force-graph** (ou `3d-force-graph`) para o grafo.
+* **gray-matter** para ler *front‑matter* dos `.md`.</p><h2>Estrutura de pastas</h2><pre><code class=''>/content
+  /docs              # todos os .md
+  /data
+    categories.yml   # hierarquia topo/subcategorias
+    tags.json        # lista canónica de tags
+  /media             # imagens
+/pages
+  index.tsx          # homepage com grafo
+  /docs/[slug].tsx   # página de documento
+/scripts
+  build-index.ts     # gera docs-index.json (nodes/links)
+/public
+  docs-index.json    # saída do script, lida no cliente
+</code></pre><h2>Front‑matter padrão (colar nos teus .md)</h2><pre><code class='yaml'>---
+title: "TÍTULO"
+date: 2025-11-09
+categoria: trading        # usa o slug de topo
+subcategoria: estrategias # opcional
+tags: ["#mercado/forex", "#asset/xauusd", "#tipo/analise"]
+status: publicado
+resumo: "1–2 linhas."
+thumb: "/media/thumbs/exemplo.png"
+---
+</code></pre><h2>Como o grafo é gerado</h2><p>1. O script `scripts/build-index.ts` percorre `content/docs/**.md`, lê o front‑matter e cria:</p><p>* **nodes**: um por documento, mais nós de categoria/subcategoria se não existirem.
+   * **links**: doc → categoria, doc → subcategoria, doc ↔ doc (por **tags partilhadas**).
+2. O JSON final é escrito em `/public/docs-index.json`.
+3. A homepage lê esse JSON e desenha o grafo.</p><h2>Script de indexação (TypeScript)</h2><pre><code class='ts'>// scripts/build-index.ts
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';<p>const ROOT = path.join(process.cwd(), 'content', 'docs');
+const OUT = path.join(process.cwd(), 'public', 'docs-index.json');</p><p>type Node = { id: string; type: 'doc'|'cat'|'sub'; title: string; slug?: string; categoria?: string; subcategoria?: string; tags?: string[] };
+type Link = { source: string; target: string; kind: 'belongs'|'tag'; weight?: number };</p><p>const nodes = new Map<string, Node>();
+const links: Link[] = [];</p><p>function addNode(n: Node){ if(!nodes.has(n.id)) nodes.set(n.id, n); }
+function addLink(l: Link){ links.push(l); }</p><p>function fileToSlug(fp: string){
+  const rel = path.relative(ROOT, fp).replace(/\\/g,'/');
+  return rel.replace(/\.md$/, '');
+}</p><p>function walk(dir: string){
+  for(const f of fs.readdirSync(dir)){
+    const p = path.join(dir, f);
+    const st = fs.statSync(p);
+    if(st.isDirectory()) walk(p);
+    else if(f.endsWith('.md')) indexFile(p);
+  }
+}</p><p>function indexFile(fp: string){
+  const raw = fs.readFileSync(fp, 'utf8');
+  const { data } = matter(raw);
+  const slug = fileToSlug(fp);
+  const id = `doc:${slug}`;
+  const title = data.title || slug;
+  const categoria = data.categoria || 'arquivo';
+  const subcategoria = data.subcategoria || null;
+  const tags: string[] = Array.isArray(data.tags) ? data.tags : [];</p><p>addNode({ id, type:'doc', title, slug:`/docs/${slug}`, categoria, subcategoria: subcategoria||undefined, tags });</p><p>// categoria node
+  addNode({ id:`cat:${categoria}`, type:'cat', title: categoria });
+  addLink({ source:id, target:`cat:${categoria}`, kind:'belongs' });</p><p>// subcategoria node
+  if(subcategoria){
+    addNode({ id:`sub:${categoria}/${subcategoria}`, type:'sub', title: subcategoria, categoria });
+    addLink({ source:id, target:`sub:${categoria}/${subcategoria}`, kind:'belongs' });
+    // liga sub à cat
+    addLink({ source:`sub:${categoria}/${subcategoria}`, target:`cat:${categoria}`, kind:'belongs' });
+  }</p><p>// ligações por tags serão feitas num passo posterior
+}</p><p>// 1) varrer ficheiros
+walk(ROOT);</p><p>// 2) links por tags partilhadas (doc ↔ doc)
+const docList = [...nodes.values()].filter(n=>n.type==='doc');
+for(let i=0;i<docList.length;i++){
+  for(let j=i+1;j<docList.length;j++){
+    const A = docList[i], B = docList[j];
+    if(!A.tags || !B.tags) continue;
+    const inter = A.tags.filter(t=>B.tags!.includes(t));
+    if(inter.length>0){
+      addLink({ source:A.id, target:B.id, kind:'tag', weight: inter.length });
+    }
+  }
+}</p><p>// 3) escrever
+const out = { nodes:[...nodes.values()], links };
+fs.mkdirSync(path.dirname(OUT), { recursive:true });
+fs.writeFileSync(OUT, JSON.stringify(out));
+console.log(`✔ docs-index.json -> ${OUT}`);
+</code></pre></p><h2>Homepage com grafo (Next.js + React)</h2><pre><code class='tsx'>// pages/index.tsx
+import dynamic from 'next/dynamic';
+import { useEffect, useState, useMemo } from 'react';<p>const ForceGraph2D = dynamic(() => import('react-force-graph').then(m=>m.ForceGraph2D), { ssr: false });</p><p>type Graph = { nodes: any[]; links: any[] };</p><p>export default function Home(){
+  const [graph, setGraph] = useState<Graph>({ nodes:[], links:[] });
+  const [q, setQ] = useState('');
+  const [cat, setCat] = useState<string>('');</p><p>useEffect(()=>{
+    fetch('/docs-index.json').then(r=>r.json()).then(setGraph);
+  },[]);</p><p>const filtered = useMemo(()=>{
+    const ql = q.trim().toLowerCase();
+    const catsel = cat.trim();
+    const keep = new Set<string>();</p><p>for(const n of graph.nodes){
+      const inCat = !catsel || n.categoria===catsel || n.id===`cat:${catsel}` || (n.id?.startsWith?.(`sub:${catsel}/`));
+      const inText = !ql || (n.title?.toLowerCase?.().includes(ql));
+      if(inCat && inText) keep.add(n.id);
+    }</p><p>// garantir ligações relevantes
+    const nodes = graph.nodes.filter(n=>keep.has(n.id));
+    const links = graph.links.filter(l=>keep.has(l.source) && keep.has(l.target));
+    return { nodes, links };
+  }, [graph, q, cat]);</p><p>const cats = useMemo(()=>{
+    return Array.from(new Set(graph.nodes.filter((n:any)=>n.type==='cat').map((n:any)=>n.title)));
+  }, [graph]);</p><p>return (
+    <main className="min-h-screen p-6">
+      <header className="mb-4 flex gap-3 items-center">
+        <h1 className="text-2xl font-semibold">Sérgio Batalha</h1>
+        <input className="border px-3 py-2 rounded w-64" placeholder="Pesquisar…" value={q} onChange={e=>setQ(e.target.value)} />
+        <select className="border px-3 py-2 rounded" value={cat} onChange={e=>setCat(e.target.value)}>
+          <option value="">Todas as categorias</option>
+          {cats.map(c=> <option key={c} value={c}>{c}</option>)}
+        </select>
+      </header></p><ForceGraph2D
+        graphData={filtered}
+        nodeLabel={(n:any)=>n.title}
+        nodeCanvasObject={(node:any, ctx:any, scale:number)=>{
+          const label = node.title;
+          const fontSize = 12/Math.sqrt(scale);
+          ctx.font = `${fontSize}px sans-serif`;
+          const w = ctx.measureText(label).width + 10;
+          const h = fontSize + 6;
+          ctx.fillStyle = node.type==='doc' ? '#e2e8f0' : node.type==='sub' ? '#c7f9cc' : '#fde68a';
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1/Math.sqrt(scale);
+          ctx.beginPath();
+          ctx.roundRect?.(node.x-w/2, node.y-h/2, w, h, 4);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#111827';
+          ctx.fillText(label, node.x - (w-10)/2, node.y + fontSize/2 - 2);
+        }}
+        linkCurvature={(l:any)=> l.kind==='tag' ? 0.25 : 0}
+        linkColor={(l:any)=> l.kind==='tag' ? 'rgba(99,102,241,0.4)' : 'rgba(15,23,42,0.35)'}
+        linkWidth={(l:any)=> l.kind==='tag' ? Math.min(3, 0.5 + (l.weight||1)) : 1}
+        onNodeClick={(n:any)=>{ if(n.slug) window.location.href = n.slug; }}
+      />
+    </main>
+  );
+}
+</code></pre><p>> Dica: em Next 14/15, instala `react-force-graph` e ativa `experimental.canvas` se necessário.</p><h2>Página de documento (render de Markdown)</h2><p>Usa `next-mdx-remote` ou `remark/rehype` para converter o `.md` do `content/docs`. Exemplo mínimo com `remark`:</p><pre><code class='ts'>// pages/docs/[slug].tsx
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+import { GetStaticPaths, GetStaticProps } from 'next';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';<p>export const getStaticPaths: GetStaticPaths = async () => {
+  const ROOT = path.join(process.cwd(), 'content', 'docs');
+  const paths: any[] = [];
+  function walk(dir: string){
+    for(const f of fs.readdirSync(dir)){
+      const p = path.join(dir, f);
+      const st = fs.statSync(p);
+      if(st.isDirectory()) walk(p); else if(f.endsWith('.md')){
+        const rel = path.relative(ROOT, p).replace(/\\/g,'/').replace(/\.md$/, '');
+        paths.push({ params: { slug: rel.split('/') } });
+      }
+    }
+  }
+  walk(ROOT);
+  return { paths, fallback: false };
+};</p><p>export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const slugArr = params!.slug as string[];
+  const file = path.join(process.cwd(), 'content', 'docs', ...slugArr) + '.md';
+  const raw = fs.readFileSync(file, 'utf8');
+  const { data, content } = matter(raw);
+  const html = String(await unified().use(remarkParse).use(remarkRehype).use(rehypeStringify).process(content));
+  return { props: { data, html } };
+};</p><p>export default function Doc({ data, html }: any){
+  return (
+    <main className="prose max-w-3xl mx-auto p-6">
+      <h1>{data.title}</h1>
+      {data.resumo && <p className="text-slate-600">{data.resumo}</p>}
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+    </main>
+  );
+}
+</code></pre></p><h2>Estilos rápidos (Tailwind)</h2><p>* Adiciona `@tailwindcss/typography` para a classe `prose`.</p><h2>Deploy</h2><p>* **Vercel/Netlify**: cada push corre o `scripts/build-index.ts` no `postbuild` e publica `public/docs-index.json`.</p><p>`package.json` (excerto):</p><pre><code class='json'>{
+  "scripts": {
+    "build": "next build",
+    "postbuild": "ts-node scripts/build-index.ts || node scripts/build-index.ts"
+  }
+}
+</code></pre><h2>Roadmap</h2><p>* [ ] Pesos de ligação por **frequência de tag** (TF‑IDF simples).
+* [ ] **Mini‑preview** ao pairar (resumo + thumb do doc).
+* [ ] Suporte a **/search** com resultados listados.
+* [ ] Export **PNG** do grafo.</p><h2>Changelog</h2><p>* 2025‑11‑09: Primeira versão funcional (grafo + pesquisa + filtro de categoria).</p>
+    </article>
+    <div class="footer">
+      Metadados lidos de YAML front matter e/ou &lt;meta name=...&gt; tags.
+    </div>
+  </div>
+</body>
+</html>
