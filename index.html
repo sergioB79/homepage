@@ -62,8 +62,10 @@
     .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center}
     .kpi b{display:block;font-size:16px}
     .legend{display:block;margin-top:6px}
-    .legend-title{font-size:12px;color:#cdd6e0;margin:0 0 6px 0;letter-spacing:.3px}
-    .legend-scroll{max-height:220px;overflow:auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px 0}
+    .legend-title{font-size:12px;color:#cdd6e0;margin:0 0 6px 0;letter-spacing:.3px;display:flex;align-items:center;justify-content:space-between}
+    .legend-toggle{background:#151b23;color:var(--fg);border:1px solid var(--border);border-radius:10px;padding:4px 8px;cursor:pointer;font-size:12px}
+    .legend-toggle:hover{border-color:#2f3f55}
+    .legend-scroll{max-height:220px;overflow:auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px 0;display:none}
     .legend-list{list-style:none;margin:0;padding:0}
     .legend-item{display:flex;align-items:center;gap:8px;padding:6px 2px 6px 0;cursor:pointer}
     .legend-item:hover{background:rgba(255,255,255,0.03)}
@@ -516,8 +518,10 @@
     function buildLegend(){
       const legend = document.getElementById('legend');
       legend.textContent = '';
-      // Title
-      const title = document.createElement('div'); title.className='legend-title'; title.textContent = 'Categorias'; legend.appendChild(title);
+      // Title + toggle
+      const title = document.createElement('div'); title.className='legend-title'; legend.appendChild(title);
+      const titleText = document.createElement('span'); titleText.textContent = 'Categorias'; title.appendChild(titleText);
+      const btn = document.createElement('button'); btn.className='legend-toggle'; btn.textContent = 'Mostrar'; title.appendChild(btn);
       const scroll = document.createElement('div'); scroll.className='legend-scroll'; legend.appendChild(scroll);
       const ul = document.createElement('ul'); ul.className='legend-list'; scroll.appendChild(ul);
 
@@ -548,6 +552,11 @@
         });
         ul.appendChild(li);
       }
+      let open = false;
+      btn.addEventListener('click', ()=>{
+        open = !open; scroll.style.display = open ? 'block' : 'none'; btn.textContent = open ? 'Esconder' : 'Mostrar';
+      });
+      // default collapsed; no-op
     }
 
     // Montar grafo

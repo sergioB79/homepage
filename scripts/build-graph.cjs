@@ -131,11 +131,20 @@ function buildGraph(baseGraph, cats) {
     const subcategoria = subRaw ? slugify(subRaw) : null;
     const tags = (meta && Array.isArray(meta.tags)) ? meta.tags : [];
     const id = 'doc:' + slugify(rel.replace(/\.html?$/i, '').replace(/\//g, '-'));
-    nodes.push({ id, label, kind: 'doc', category, subcategory: subcategoria || undefined, tags, path: rel });
+    nodes.push({ id, label, kind: 'doc', category, subcategory: subcategoria || undefined, sublabel: subRaw || undefined, tags, path: rel });
   }
 
   // category contains doc (by doc.category matching slug)
   nodes.filter(n => n.kind === 'doc').forEach(d => {
+    // Auto-create missing category if referenced by doc
+    if (d.category && !catIndex.has(d.category) && d.category !== 'arquivo') {
+      const newCatId = `cat:${d.category}`;
+      const label = d.category.split('-').map(s=> s.charAt(0).toUpperCase()+s.slice(1)).join(' ');
+      nodes.push({ id: newCatId, label, slug: d.category, kind: 'category', about: '' });
+      catIndex.set(d.category, newCatId);
+      subsByCat.set(d.category, new Set());
+      if (owner) links.push({ source: owner.id, target: newCatId, kind: 'owns' });
+    }
     if (d.category && catIndex.has(d.category)) {
       links.push({ source: `cat:${d.category}`, target: d.id, kind: 'contains' });
       // Subcategory linking with fuzzy match + tag inference
@@ -175,8 +184,15 @@ function buildGraph(baseGraph, cats) {
         }
         if (bestScore > 0) subSlug = best;
       }
-      if (subSlug && knownSubs.has(subSlug)) {
+      if (subSlug) {
         const subId = `sub:${d.category}:${subSlug}`;
+        if (!knownSubs.has(subSlug)) {
+          // Auto-create missing subcategory node from doc metadata
+          const subLabel = d.sublabel || subSlug.replace(/[-]/g,' ').replace(/\b\w/g, m=>m.toUpperCase());
+          nodes.push({ id: subId, label: subLabel, kind: 'subcategory', category: d.category, about: subLabel });
+          links.push({ source: `cat:${d.category}`, target: subId, kind: 'has-sub' });
+          knownSubs.add(subSlug);
+        }
         links.push({ source: subId, target: d.id, kind: 'contains' });
       }
     } else if (d.category === 'arquivo') {

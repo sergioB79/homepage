@@ -549,6 +549,7 @@
       "kind": "doc",
       "category": "dev",
       "subcategory": "github-vercel-netlify-ci-cd",
+      "sublabel": "github-vercel-netlify-ci-cd",
       "tags": [
         "#stack/git",
         "#tool/github",
@@ -563,6 +564,7 @@
       "kind": "doc",
       "category": "dev",
       "subcategory": "webgl",
+      "sublabel": "webgl",
       "tags": [
         "#creative-coding",
         "#webgl",
@@ -579,6 +581,7 @@
       "kind": "doc",
       "category": "dev",
       "subcategory": "devops",
+      "sublabel": "devops",
       "tags": [
         "infra",
         "kubernetes",
@@ -595,6 +598,7 @@
       "kind": "doc",
       "category": "dev",
       "subcategory": "webgl",
+      "sublabel": "webgl",
       "tags": [
         "stack/threejs",
         "tipo/analise"
@@ -627,11 +631,34 @@
       "path": "OceanProtocol.html"
     },
     {
+      "id": "doc:sites-essenciais-trading",
+      "label": "55 Sites Essenciais para Trading (com explicação)",
+      "kind": "doc",
+      "category": "trading",
+      "subcategory": "recursos",
+      "sublabel": "recursos",
+      "tags": [
+        "#links",
+        "#calendarios",
+        "#macro",
+        "#screeners",
+        "#estrategia",
+        "#backtesting",
+        "#risco",
+        "#fx",
+        "#indices",
+        "#commodities",
+        "#cripto"
+      ],
+      "path": "sites-Essenciais-Trading.html"
+    },
+    {
       "id": "doc:vercel-para-humanos",
       "label": "Vercel para Humanos: o que é, quando usar, perigos e um guia rápido",
       "kind": "doc",
       "category": "dev",
       "subcategory": "deploy",
+      "sublabel": "deploy",
       "tags": [
         "#stack/vercel",
         "#stack/nextjs",
@@ -1061,6 +1088,16 @@
     {
       "source": "cat:trading",
       "target": "doc:oceanprotocol",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:trading",
+      "target": "doc:sites-essenciais-trading",
+      "kind": "contains"
+    },
+    {
+      "source": "sub:trading:indices-ger40-dax-s-p500-nas100",
+      "target": "doc:sites-essenciais-trading",
       "kind": "contains"
     },
     {
