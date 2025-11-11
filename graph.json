@@ -544,6 +544,22 @@
       "about": "Rascunhos / Em Progresso"
     },
     {
+      "id": "doc:20-tesouros-naturais",
+      "label": "20 Tesouros Naturais para o Dia a Dia: O que Diz a Ciência e Como Usar com Segurança",
+      "kind": "doc",
+      "category": "vida",
+      "subcategory": "nutricao",
+      "sublabel": "nutricao",
+      "tags": [
+        "alimentos-funcionais",
+        "probioticos",
+        "fibras",
+        "plantas-medicinais",
+        "segurança"
+      ],
+      "path": "20-Tesouros-Naturais.html"
+    },
+    {
       "id": "doc:guia-git-github-basico",
       "label": "Git & GitHub — Guia rápido prático",
       "kind": "doc",
@@ -1049,6 +1065,16 @@
       "source": "owner:sergio",
       "target": "cat:arquivo",
       "kind": "owns"
+    },
+    {
+      "source": "cat:vida",
+      "target": "doc:20-tesouros-naturais",
+      "kind": "contains"
+    },
+    {
+      "source": "sub:vida:nutricao-suplementos",
+      "target": "doc:20-tesouros-naturais",
+      "kind": "contains"
     },
     {
       "source": "cat:dev",
