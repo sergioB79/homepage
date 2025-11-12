@@ -335,7 +335,10 @@
     for (const n of ALL_NODES.values()){
       if (n.kind === 'doc'){
         let ok = true;
-        if (cat) ok = (n.category === cat);
+        if (cat){
+          const cats = Array.isArray(n.categories) ? n.categories : [];
+          ok = (n.category === cat) || cats.includes(cat);
+        }
         if (ok && term){
           const inLabel = (n.label||'').toLowerCase().includes(term);
           const inTags = Array.isArray(n.tags) && n.tags.some(t=>t.toLowerCase().includes(term));

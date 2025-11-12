@@ -1,0 +1,109 @@
+HTML Requirements: Categories and Subcategories in docs/*.html
+
+Goal: Make each HTML in docs/ correctly appear as a doc node with a primary category, optional extra categories, and optional subcategory, exactly as parsed by scripts/build-graph.cjs and index.html.
+
+Where to put files
+- Recommended path: docs/<categoria-slug>/<nome>.html (folder name suggests the category if none is declared).
+- Any subfolders work; the builder uses metadata first, then folder name, else falls back to categoria "arquivo".
+
+Required/optional metadata (accepted forms)
+- Keys accepted (Portuguese or English): categoria|category, subcategoria|subcategory, categorias (multiple), tags, title.
+- You can declare metadata in ANY of these ways (the builder tries all, in this order):
+  1) Front matter (YAML‑like) near the top, standalone or wrapped in an HTML comment.
+  2) <meta> tags in <head>.
+  3) Inline markers in the first lines (fallback).
+
+1) Front matter examples
+---
+title: Vercel para Humanos
+categoria: dev
+subcategoria: vercel                # defaults to the primary categoria
+categorias: dev cloud               # extra categories allowed (space or comma separated)
+tags: [#vercel, #deploy, #frontend] # array or plain string also works
+---
+
+<!-- Or wrapped in an HTML comment -->
+<!--
+---
+title: Introdução ao Kubernetes
+categoria: dev
+subcategoria: cloud-kubernetes
+categorias: dev cloud infra
+tags: [kubernetes, #containers, #devops]
+---
+-->
+
+2) <meta> tags examples (put in <head>)
+<meta name="title" content="Guia Vercel">
+<meta name="categoria" content="dev">
+<meta name="subcategoria" content="dev:vercel">   <!-- or just "vercel" to attach to primary categoria -->
+<meta name="tags" content="#vercel, deploy, frontend">
+
+English synonyms also work: name="category" / name="subcategory".
+
+3) Inline markers (fallback, early lines)
+- Patterns like these are parsed if front matter/meta are absent:
+  categoria: dev
+  subcategoria: vercel
+  categorias: dev cloud
+  tags: [#vercel, #deploy]
+
+How the builder interprets fields
+- title: Used as the doc node label; else derived from file name.
+- categoria (primary):
+  - If provided, normalized to a slug (lowercase, no accents/spaces).
+  - If unknown, it becomes "arquivo" and a warning is printed.
+  - If absent, folder name docs/<folder>/ is used; else "arquivo".
+- categorias (extras):
+  - Can be array in front matter, space/comma list, or meta/inline string.
+  - The doc links to all categories in this set (including the primary when present).
+- subcategoria (single):
+  - You may specify just the sub slug (e.g., "vercel"); it attaches to the primary categoria.
+  - Or specify an explicit pair "cat:sub" to bind to a different categoria.
+  - You can also use subcategorias: ["cat:sub"] or [{ cat: ..., sub: ... }]; the first item is used.
+  - If the sub doesn’t exist yet under that categoria, the graph may auto‑create it or fuzzy‑match using tags.
+- tags: Array or comma/space‑separated string; used for search and to help pick subcategorias when ambiguous (e.g., token "vercel" boosts matching to sub "vercel").
+
+Subcategory creation and matching
+- Known subcategorias come from categoriasNovas.txt (see below). If your doc declares a sub not listed there, the builder tries:
+  1) Tag‑driven scoring to choose the closest existing sub.
+  2) Fuzzy includes match against known subs.
+  3) If still unmatched, it can auto‑create a new sub node from your value.
+
+categoriasNovas.txt format (if you maintain category/sub lists)
+- Plain‑text, YAML‑like list parsed by both index.html and scripts/build-graph.cjs.
+- Minimal example:
+categories:
+  - slug: dev
+    title: Desenvolvimento
+    sub:
+      - "vercel"
+      - "cloud-kubernetes"
+  - slug: vida
+    title: Vida
+    sub:
+      - "saude"
+      - "habitos"
+
+Quick checklist per HTML doc
+- Provide at least a primary categoria (front matter, meta, or inline).
+- Optionally add subcategoria ("sub" or "cat:sub").
+- Optionally add categorias extras.
+- Add tags that reflect keywords; they help sub selection.
+- Keep title set for nicer labels in the graph.
+
+Minimal HTML skeleton (drop in docs/dev/guia-vercel.html)
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <title>Guia Vercel</title>
+  <meta name="categoria" content="dev">
+  <meta name="subcategoria" content="vercel">
+  <meta name="tags" content="#vercel, deploy, frontend">
+</head>
+<body>
+  <h1>Guia Vercel</h1>
+  <p>Conteúdo...</p>
+</body>
+</html>

@@ -121,17 +121,35 @@ function buildGraph(baseGraph, cats) {
       console.log('[debug] meta for', rel, meta);
     }
     if (meta && meta.title) label = meta.title;
+    // Primary category
     let categoryRaw = (meta && (meta.categoria || meta.category)) ? String(meta.categoria || meta.category) : (catMaybe || 'arquivo');
     let categoryNorm = slugify(categoryRaw);
     let category = slugByAny.get(categoryNorm) || (catSlugs.has(categoryNorm) ? categoryNorm : 'arquivo');
     if (category === 'arquivo' && (meta && (meta.categoria || meta.category))) {
       console.warn(`[warn] Unknown categoria for ${rel}: "${categoryRaw}" -> using 'arquivo'`);
     }
-    const subRaw = (meta && (meta.subcategoria || meta.subcategory)) ? String(meta.subcategoria || meta.subcategory) : null;
-    const subcategoria = subRaw ? slugify(subRaw) : null;
+    // Extra categories (array)
+    let categoriesArr = [];
+    if (meta && Array.isArray(meta.categorias)) categoriesArr = meta.categorias.map(String).map(slugify);
+    else if (meta && typeof meta.categorias === 'string') categoriesArr = meta.categorias.split(/[\s,]+/).map(s=>s.trim()).filter(Boolean).map(slugify);
+    if (category && category !== 'arquivo') categoriesArr = [category, ...categoriesArr];
+    categoriesArr = Array.from(new Set(categoriesArr));
+    // Subcategoria explicit pair: accept "cat:sub" or object {cat, sub}
+    let subPair = null;
+    if (meta && meta.subcategoria && typeof meta.subcategoria === 'string' && meta.subcategoria.includes(':')){
+      const [c,s] = meta.subcategoria.split(':'); if (c && s) subPair = { cat: slugify(c), sub: slugify(s), label: s.trim() };
+    } else if (meta && Array.isArray(meta.subcategorias) && meta.subcategorias.length){
+      const item = meta.subcategorias[0];
+      if (typeof item === 'string' && item.includes(':')){ const [c,s]=item.split(':'); if(c&&s) subPair={cat:slugify(c), sub:slugify(s), label:s.trim()}; }
+      else if (item && typeof item==='object' && item.cat && item.sub){ subPair={ cat: slugify(item.cat), sub: slugify(item.sub), label: String(item.sub)}; }
+    } else {
+      // legacy single subcategoria assigned to primary category
+      const subRaw = (meta && (meta.subcategoria || meta.subcategory)) ? String(meta.subcategoria || meta.subcategory) : null;
+      if (subRaw) subPair = { cat: category, sub: slugify(subRaw), label: subRaw.trim() };
+    }
     const tags = (meta && Array.isArray(meta.tags)) ? meta.tags : [];
     const id = 'doc:' + slugify(rel.replace(/\.html?$/i, '').replace(/\//g, '-'));
-    nodes.push({ id, label, kind: 'doc', category, subcategory: subcategoria || undefined, sublabel: subRaw || undefined, tags, path: rel });
+    nodes.push({ id, label, kind: 'doc', category, categories: categoriesArr.length?categoriesArr:undefined, subcategory: subPair?subPair.sub:undefined, subcat_pair: subPair || undefined, sublabel: subPair?subPair.label:undefined, tags, path: rel });
   }
 
   // category contains doc (by doc.category matching slug)
@@ -145,12 +163,26 @@ function buildGraph(baseGraph, cats) {
       subsByCat.set(d.category, new Set());
       if (owner) links.push({ source: owner.id, target: newCatId, kind: 'owns' });
     }
+    // Link all categories including extras
+    const catsOfDoc = new Set([d.category, ...((d.categories||[]))].filter(Boolean));
+    for (const c of catsOfDoc){
+      if (!catIndex.has(c) && c !== 'arquivo'){
+        const newCatId = `cat:${c}`;
+        const label = c.split('-').map(s=> s.charAt(0).toUpperCase()+s.slice(1)).join(' ');
+        nodes.push({ id: newCatId, label, slug: c, kind: 'category', about: '' });
+        catIndex.set(c, newCatId);
+        subsByCat.set(c, new Set());
+        if (owner) links.push({ source: owner.id, target: newCatId, kind: 'owns' });
+      }
+      if (catIndex.has(c)) links.push({ source: `cat:${c}`, target: d.id, kind: 'contains' });
+    }
     if (d.category && catIndex.has(d.category)) {
-      links.push({ source: `cat:${d.category}`, target: d.id, kind: 'contains' });
       // Subcategory linking with fuzzy match + tag inference
       const knownSubs = subsByCat.get(d.category) || new Set();
       const knownList = Array.from(knownSubs.values());
-      let subSlug = d.subcategory ? slugify(d.subcategory) : null;
+      let subSlug = null;
+      if (d.subcat_pair && d.subcat_pair.cat === d.category){ subSlug = slugify(d.subcat_pair.sub); }
+      else if (d.subcategory){ subSlug = slugify(d.subcategory); }
       if (subSlug && !knownSubs.has(subSlug)) {
         // Try tag-driven scoring first to prefer specific matches like 'vercel'
         let picked = null; let pickedScore = 0;
@@ -279,17 +311,22 @@ function parseDocMeta(absPath) {
 
   // 4) Naive first-lines scan: strip tags, then look for categoria: X and subcategoria: Y
   const lines = head.split(/\r?\n/).slice(0, 120);
-  let firstCat = null, firstSub = null, firstTags = null;
+  let firstCat = null, firstSub = null, firstTags = null, firstCatsMulti = null;
   for (const rawLine of lines){
     const line = rawLine.replace(/<[^>]+>/g, ' '); // drop HTML tags
     if (!firstCat){ const m = line.match(/\bcategoria\b\s*[:=]\s*([^,;\s]+)/i) || line.match(/\bcategory\b\s*[:=]\s*([^,;\s]+)/i); if (m) firstCat = m[1].trim(); }
     if (!firstSub){ const m = line.match(/\bsubcategoria\b\s*[:=]\s*([^,;\s]+)/i) || line.match(/\bsubcategory\b\s*[:=]\s*([^,;\s]+)/i); if (m) firstSub = m[1].trim(); }
+    if (!firstCatsMulti){ const m = line.match(/\bcategorias\b\s*[:=]\s*([^\r\n]+)/i); if (m) firstCatsMulti = m[1]; }
     if (!firstTags){ const m = line.match(/\btags\b\s*[:=]\s*([^\r\n]+)/i); if (m) firstTags = m[1]; }
-    if (firstCat && firstSub && firstTags) break;
+    if (firstCat && firstSub && firstTags && firstCatsMulti) break;
   }
   if (firstCat) out.categoria = firstCat;
   if (firstSub) out.subcategoria = firstSub;
-  if (firstTags){ out.tags = firstTags.split(',').map(s => s.replace(/[\#\"']/g,'').trim()).filter(Boolean); }
+  if (firstCatsMulti) out.categorias = firstCatsMulti.split(/[\s,]+/).map(s=>s.replace(/[\#\"']/g,'').trim()).filter(Boolean);
+  if (firstTags){
+    // split on commas or spaces, accept "#token"
+    out.tags = firstTags.split(/[\s,]+/).map(s => s.replace(/[\#\"']/g,'').trim()).filter(Boolean);
+  }
   return Object.keys(out).length ? out : null;
 }
 

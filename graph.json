@@ -548,7 +548,15 @@
       "label": "20 Tesouros Naturais para o Dia a Dia: O que Diz a Ciência e Como Usar com Segurança",
       "kind": "doc",
       "category": "vida",
+      "categories": [
+        "vida"
+      ],
       "subcategory": "nutricao",
+      "subcat_pair": {
+        "cat": "vida",
+        "sub": "nutricao",
+        "label": "nutricao"
+      },
       "sublabel": "nutricao",
       "tags": [
         "alimentos-funcionais",
@@ -560,11 +568,130 @@
       "path": "20-Tesouros-Naturais.html"
     },
     {
+      "id": "doc:2023-07-20-manage-cholesterol-levels",
+      "label": "Gerir os Níveis de Colesterol",
+      "kind": "doc",
+      "category": "arquivo",
+      "subcategory": "nutricao",
+      "subcat_pair": {
+        "cat": "arquivo",
+        "sub": "nutricao",
+        "label": "Nutrição"
+      },
+      "sublabel": "Nutrição",
+      "tags": [],
+      "path": "2023 07 20 Manage Cholesterol Levels.html"
+    },
+    {
+      "id": "doc:2023-07-29-prostate-health-tips",
+      "label": "Dicas para a Saúde da Próstata",
+      "kind": "doc",
+      "category": "arquivo",
+      "subcategory": "prostata",
+      "subcat_pair": {
+        "cat": "arquivo",
+        "sub": "prostata",
+        "label": "Próstata"
+      },
+      "sublabel": "Próstata",
+      "tags": [],
+      "path": "2023 07 29 Prostate Health Tips.html"
+    },
+    {
+      "id": "doc:2023-09-25-wyckoff-accumulation-st-and-sos",
+      "label": "Wyckoff Accumulation: ST and SOS",
+      "kind": "doc",
+      "category": "trading",
+      "categories": [
+        "trading"
+      ],
+      "subcategory": "analise-tecnica",
+      "subcat_pair": {
+        "cat": "trading",
+        "sub": "analise-tecnica",
+        "label": "Análise Técnica"
+      },
+      "sublabel": "Análise Técnica",
+      "tags": [],
+      "path": "2023 09 25 Wyckoff Accumulation ST and SOS.html"
+    },
+    {
+      "id": "doc:2023-09-26-wyckoff-distribution-sell-entry",
+      "label": "Wyckoff Distribution Sell Entry - 2023-09-26",
+      "kind": "doc",
+      "category": "trading",
+      "categories": [
+        "trading"
+      ],
+      "subcategory": "analise-tecnica",
+      "subcat_pair": {
+        "cat": "trading",
+        "sub": "analise-tecnica",
+        "label": "Análise Técnica"
+      },
+      "sublabel": "Análise Técnica",
+      "tags": [],
+      "path": "2023 09 26 Wyckoff Distribution Sell Entry.html"
+    },
+    {
+      "id": "doc:2023-10-18-cocoa-trading-tips-info",
+      "label": "Dicas e Informações sobre Negociação de Cacau",
+      "kind": "doc",
+      "category": "arquivo",
+      "subcategory": "trading",
+      "subcat_pair": {
+        "cat": "arquivo",
+        "sub": "trading",
+        "label": "Trading"
+      },
+      "sublabel": "Trading",
+      "tags": [],
+      "path": "2023 10 18 Cocoa Trading Tips & Info.html"
+    },
+    {
+      "id": "doc:2025-06-03-finrl-overview",
+      "label": "Visão Geral do FinRL",
+      "kind": "doc",
+      "category": "arquivo",
+      "subcategory": "aprendizado-de-maquina",
+      "subcat_pair": {
+        "cat": "arquivo",
+        "sub": "aprendizado-de-maquina",
+        "label": "Aprendizado de Máquina"
+      },
+      "sublabel": "Aprendizado de Máquina",
+      "tags": [],
+      "path": "2025 06 03 FinRL Overview.html"
+    },
+    {
+      "id": "doc:20250603finrloverview",
+      "label": "Visão Geral do FinRL",
+      "kind": "doc",
+      "category": "arquivo",
+      "subcategory": "financas",
+      "subcat_pair": {
+        "cat": "arquivo",
+        "sub": "financas",
+        "label": "Finanças"
+      },
+      "sublabel": "Finanças",
+      "tags": [],
+      "path": "20250603FinRLOverview.html"
+    },
+    {
       "id": "doc:guia-git-github-basico",
       "label": "Git & GitHub — Guia rápido prático",
       "kind": "doc",
       "category": "dev",
+      "categories": [
+        "dev"
+      ],
       "subcategory": "github-vercel-netlify-ci-cd",
+      "subcat_pair": {
+        "cat": "dev",
+        "sub": "github-vercel-netlify-ci-cd",
+        "label": "github-vercel-netlify-ci-cd"
+      },
       "sublabel": "github-vercel-netlify-ci-cd",
       "tags": [
         "#stack/git",
@@ -579,7 +706,15 @@
       "label": "KaleidoLab — Manual do Utilizador",
       "kind": "doc",
       "category": "dev",
+      "categories": [
+        "dev"
+      ],
       "subcategory": "webgl",
+      "subcat_pair": {
+        "cat": "dev",
+        "sub": "webgl",
+        "label": "webgl"
+      },
       "sublabel": "webgl",
       "tags": [
         "#creative-coding",
@@ -596,7 +731,15 @@
       "label": "Kubernetes para 1 Pessoa: Quando Usar (e Quando é Overkill)",
       "kind": "doc",
       "category": "dev",
+      "categories": [
+        "dev"
+      ],
       "subcategory": "devops",
+      "subcat_pair": {
+        "cat": "dev",
+        "sub": "devops",
+        "label": "devops"
+      },
       "sublabel": "devops",
       "tags": [
         "infra",
@@ -613,7 +756,15 @@
       "label": "Construção do Site",
       "kind": "doc",
       "category": "dev",
+      "categories": [
+        "dev"
+      ],
       "subcategory": "webgl",
+      "subcat_pair": {
+        "cat": "dev",
+        "sub": "webgl",
+        "label": "webgl"
+      },
       "sublabel": "webgl",
       "tags": [
         "stack/threejs",
@@ -626,6 +777,9 @@
       "label": "Numeraire (NMR) — AI + Finance via Crowdsourced Models",
       "kind": "doc",
       "category": "trading",
+      "categories": [
+        "trading"
+      ],
       "tags": [
         "ia",
         "crypto",
@@ -643,6 +797,9 @@
       "label": "Ocean Protocol (OCEAN) — Monetização de Dados via Blockchain",
       "kind": "doc",
       "category": "trading",
+      "categories": [
+        "trading"
+      ],
       "tags": [],
       "path": "OceanProtocol.html"
     },
@@ -651,7 +808,15 @@
       "label": "55 Sites Essenciais para Trading (com explicação)",
       "kind": "doc",
       "category": "trading",
+      "categories": [
+        "trading"
+      ],
       "subcategory": "recursos",
+      "subcat_pair": {
+        "cat": "trading",
+        "sub": "recursos",
+        "label": "recursos"
+      },
       "sublabel": "recursos",
       "tags": [
         "#links",
@@ -673,7 +838,15 @@
       "label": "Vercel para Humanos: o que é, quando usar, perigos e um guia rápido",
       "kind": "doc",
       "category": "dev",
+      "categories": [
+        "dev"
+      ],
       "subcategory": "deploy",
+      "subcat_pair": {
+        "cat": "dev",
+        "sub": "deploy",
+        "label": "deploy"
+      },
       "sublabel": "deploy",
       "tags": [
         "#stack/vercel",
@@ -1074,6 +1247,41 @@
     {
       "source": "sub:vida:nutricao-suplementos",
       "target": "doc:20-tesouros-naturais",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:arquivo",
+      "target": "doc:2023-07-20-manage-cholesterol-levels",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:arquivo",
+      "target": "doc:2023-07-29-prostate-health-tips",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:trading",
+      "target": "doc:2023-09-25-wyckoff-accumulation-st-and-sos",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:trading",
+      "target": "doc:2023-09-26-wyckoff-distribution-sell-entry",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:arquivo",
+      "target": "doc:2023-10-18-cocoa-trading-tips-info",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:arquivo",
+      "target": "doc:2025-06-03-finrl-overview",
+      "kind": "contains"
+    },
+    {
+      "source": "cat:arquivo",
+      "target": "doc:20250603finrloverview",
       "kind": "contains"
     },
     {
