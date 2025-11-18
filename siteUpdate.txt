@@ -1,0 +1,274 @@
+um “assistente por voz” no site: saúda, pergunta “posso ajudar?”, ouve o utilizador, procura no teu site e responde em voz (pt-PT). Abaixo tens um kit plug-and-play em duas partes:
+
+Cliente (browser): usa Web Speech API
+
+Reconhecimento de voz: webkitSpeechRecognition (Chrome/Edge); fallback para chat por texto quando não houver suporte.
+
+Síntese de voz: speechSynthesis (pt-PT).
+
+Servidor (API): recebe o texto do utilizador, consulta um índice do site e devolve uma resposta + sugestões de páginas (opcionalmente usando a tua OpenAI API).
+
+1) Widget de Voz (coloca no teu HTML)
+
+Adiciona isto mesmo antes de </body> (ou num ficheiro voice-assistant.js + <script type="module" src="/voice-assistant.js"></script>). É vanilla JS, sem dependências.
+
+<!-- Botão flutuante + painel minimal -->
+<style>
+  .va-btn { position: fixed; right: 20px; bottom: 20px; width: 60px; height: 60px; border-radius: 50%;
+    border: none; box-shadow: 0 6px 18px rgba(0,0,0,.25); cursor: pointer; font-size: 22px; }
+  .va-on  { background: #1f6feb; color: #fff; }
+  .va-off { background: #eaeef3; color: #222; }
+  .va-panel { position: fixed; right: 20px; bottom: 90px; width: min(380px, 92vw); max-height: 60vh; overflow: auto;
+    background: #fff; border: 1px solid #dde3ea; border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,.18);
+    padding: 12px 14px; font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial; display:none; }
+  .va-row { margin: 8px 0; }
+  .va-row.me { text-align: right; }
+  .va-row.ai { text-align: left; }
+  .va-suggest a { display:inline-block; margin:6px 6px 0 0; padding:6px 10px; border-radius:999px;
+    background:#f2f5f9; color:#0c1b33; text-decoration:none; border:1px solid #e3e9f2; font-size: 13px; }
+  .va-hint { opacity:.65; font-size: 13px; margin-top: 6px; }
+</style>
+
+<div id="va-panel" class="va-panel" aria-live="polite"></div>
+<button id="va-btn" class="va-btn va-off" aria-label="Assistente por voz">🎤</button>
+
+<script type="module">
+  const VA = {
+    lang: 'pt-PT',
+    apiUrl: '/api/voice-assistant', // muda se precisares
+    greetText: 'Olá! Posso ajudar? Diz, por exemplo: "procura artigos sobre FinRL" ou "mostra-me a página de contacto".',
+    listening: false,
+    recog: null,
+    voices: [],
+  };
+
+  const btn   = document.getElementById('va-btn');
+  const panel = document.getElementById('va-panel');
+
+  // 1) TTS: escolher voz pt-PT quando disponível
+  function loadVoices() {
+    VA.voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('pt-PT') || v.lang.startsWith('pt'));
+  }
+  if ('speechSynthesis' in window) {
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  function speak(text) {
+    if (!('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = VA.lang;
+    if (VA.voices.length) u.voice = VA.voices[0];
+    u.rate = 1; u.pitch = 1; u.volume = 1;
+    speechSynthesis.cancel(); // interrompe fala anterior
+    speechSynthesis.speak(u);
+  }
+
+  function showPanel() {
+    panel.style.display = 'block';
+    if (!panel.dataset.greeted) {
+      addRow('ai', VA.greetText);
+      speak('Olá! Posso ajudar?');
+      panel.dataset.greeted = '1';
+    }
+  }
+  function addRow(who, text, suggestions=[]) {
+    const div = document.createElement('div');
+    div.className = 'va-row ' + who;
+    div.innerHTML = `<div>${escapeHtml(text)}</div>`;
+    panel.appendChild(div);
+    if (suggestions.length) {
+      const sug = document.createElement('div');
+      sug.className = 'va-row va-suggest';
+      suggestions.forEach(s => {
+        const a = document.createElement('a'); a.href = s.url; a.textContent = s.title; a.target = '_self';
+        sug.appendChild(a);
+      });
+      panel.appendChild(sug);
+    }
+    panel.scrollTop = panel.scrollHeight;
+  }
+  function hint(text) {
+    const d = document.createElement('div');
+    d.className = 'va-hint';
+    d.textContent = text;
+    panel.appendChild(d);
+    panel.scrollTop = panel.scrollHeight;
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  // 2) STT: reconhecimento de voz (Chrome/Edge)
+  function supportedSTT() {
+    return 'webkitSpeechRecognition' in window;
+  }
+  function startListening() {
+    if (!supportedSTT()) { showPanel(); addRow('ai','O teu navegador não suporta reconhecimento de voz. Escreve o pedido:'); return; }
+    try {
+      if (!VA.recog) {
+        const R = window.webkitSpeechRecognition;
+        VA.recog = new R();
+        VA.recog.lang = VA.lang;
+        VA.recog.interimResults = true;
+        VA.recog.maxAlternatives = 1;
+
+        let finalText = '';
+        VA.recog.onstart = () => { VA.listening = true; btn.classList.remove('va-off'); btn.classList.add('va-on'); showPanel(); hint('A ouvir...'); };
+        VA.recog.onresult = (ev) => {
+          let interim = '';
+          for (let i=ev.resultIndex; i<ev.results.length; i++){
+            const res = ev.results[i];
+            if (res.isFinal) finalText += res[0].transcript;
+            else interim += res[0].transcript;
+          }
+          if (interim) { /* podes mostrar parcial */ }
+        };
+        VA.recog.onerror = (e) => { addRow('ai','Ups, não percebi. Tenta outra vez.'); console.warn(e); };
+        VA.recog.onend = () => {
+          VA.listening = false; btn.classList.remove('va-on'); btn.classList.add('va-off');
+          if (finalText.trim()) {
+            addRow('me', finalText.trim());
+            sendToAPI(finalText.trim());
+          }
+        };
+      }
+      VA.recog.start();
+    } catch(err){ console.error(err); }
+  }
+
+  // 3) Enviar pedido à tua API
+  async function sendToAPI(text) {
+    try {
+      const r = await fetch(VA.apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ query: text })
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json(); // { reply: string, suggestions?: [{title,url}] }
+      addRow('ai', data.reply || 'Ok.', data.suggestions || []);
+      if (data.reply) speak(data.reply);
+    } catch(e) {
+      console.error(e);
+      addRow('ai', 'Não consegui responder agora. Tenta outra vez.');
+    }
+  }
+
+  // 4) Clique no botão
+  btn.addEventListener('click', () => {
+    showPanel();
+    if (speechSynthesis && speechSynthesis.speaking) speechSynthesis.cancel();
+    startListening();
+  });
+
+  // Opcional: abrir painel após 2s (com gesto do user, o TTS funciona melhor)
+  setTimeout(showPanel, 1500);
+</script>
+
+2) API mínima (Next.js API route ou Express)
+A) Next.js ( /pages/api/voice-assistant.js ou /app/api/voice-assistant/route.js )
+// pages/api/voice-assistant.js  (Next.js Pages Router)
+// Se usares App Router, adapta para handler POST.
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error:'Method not allowed' });
+  const { query } = req.body || {};
+  if (!query) return res.status(400).json({ error:'Missing query' });
+
+  // 1) procura simples no teu índice local (edita este array)
+  const SITE_INDEX = [
+    { title:'FinRL Overview', url:'/posts/finrl-overview.html', keywords:['finrl','reinforcement learning','trading','ai'] },
+    { title:'Contacto', url:'/contacto.html', keywords:['contacto','email','falar','suporte'] },
+    { title:'Sobre', url:'/sobre.html', keywords:['sobre','quem somos','equipa'] },
+    // adiciona as tuas páginas…
+  ];
+
+  // scoring rápido
+  const q = String(query).toLowerCase();
+  const scored = SITE_INDEX.map(p => {
+    const hay = (p.title + ' ' + (p.keywords||[]).join(' ')).toLowerCase();
+    const score = q.split(/\s+/).reduce((acc, term)=> acc + (hay.includes(term)?1:0), 0);
+    return { ...p, score };
+  }).sort((a,b)=> b.score - a.score).slice(0,5);
+
+  // 2) construir “contexto” curto
+  const contextSummary = scored.filter(s=>s.score>0).map(s => `- ${s.title} (${s.url})`).join('\n') || 'Nenhuma página muito relevante.';
+
+  // 3) pedir resposta à OpenAI (opcional mas recomendado)
+  //    Usa "gpt-5" via Chat Completions sem temperature.
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  let reply = '';
+  try {
+    const payload = {
+      model: 'gpt-5',
+      messages: [
+        { role: 'system', content:
+          'Fala em pt-PT. És um assistente do site. Sê breve (1–3 frases), útil e recomenda páginas do site quando fizer sentido.' },
+        { role: 'user', content:
+          `Pergunta do utilizador: "${query}"\nPáginas possivelmente relevantes:\n${contextSummary}\nResponde de forma natural e oferece até 3 sugestões.` }
+      ],
+      max_completion_tokens: 300
+    };
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+OPENAI_API_KEY },
+      body: JSON.stringify(payload)
+    });
+    if (r.ok) {
+      const data = await r.json();
+      reply = data?.choices?.[0]?.message?.content || '';
+    }
+  } catch (e) {
+    console.error('OpenAI error', e);
+  }
+
+  // 4) fallback local se OpenAI falhar
+  if (!reply) {
+    reply = scored[0]?.score
+      ? `Posso ajudar com isso. Queres ver "${scored[0].title}"?`
+      : `Posso ajudar com isso. Que tema procuras?`;
+  }
+
+  // 5) devolver sugestões formatadas
+  const suggestions = scored.filter(s=>s.score>0).slice(0,3).map(({title,url})=>({title,url}));
+  return res.status(200).json({ reply, suggestions });
+}
+
+
+Segurança: põe OPENAI_API_KEY no ambiente (Vercel/Render/etc.). O browser nunca deve ver a tua API key.
+
+B) Express (Node)
+import express from 'express';
+import fetch from 'node-fetch';
+
+const app = express();
+app.use(express.json());
+
+app.post('/api/voice-assistant', async (req, res) => {
+  const { query } = req.body || {};
+  if (!query) return res.status(400).json({ error:'Missing query' });
+
+  // … (mesma lógica do Next.js acima)
+  // devolve { reply, suggestions }
+});
+
+app.listen(3000, ()=> console.log('Voice API on :3000'));
+
+3) Notas práticas (importantes)
+
+Permissões de microfone: o navegador pede consentimento. O reconhecimento de voz é por sessão; se fechares o painel, pede outra vez.
+
+Autoplay TTS: a maioria dos browsers requer gesto do utilizador (clique) antes de falar — por isso o botão 🎤 é útil.
+
+Compatibilidade: reconhecimento (webkitSpeechRecognition) funciona em Chrome/Edge. No Safari/Firefox, mostra fallback de chat por texto.
+
+Privacidade: não envies áudio para o servidor; só o texto reconhecido. (O snippet faz exatamente isso.)
+
+Idioma: pt-PT. Em máquinas sem voz pt-PT instalada, o navegador usa a mais próxima (pt-BR).
+
+Recomendações de páginas: edita o SITE_INDEX e/ou cria um JSON alimentado pelo teu sitemap; idealmente gera isto no build.
+
+Qualidade de fala: se quiseres TTS premium (vozes mais naturais), podes:
+
+gerar MP3 no servidor (OpenAI TTS, etc.), devolver a URL e tocar no cliente.
+
+guardar os ficheiros em cache (CDN) para saudações/replies comuns.
+

@@ -1,0 +1,125 @@
+Manual do Projeto e Guia de Operação
+====================================
+
+Resumo rápido
+- Tipo de site: estático, com uma visualização 3D (grafo) e um assistente por voz pt‑PT no cliente.
+- Pesquisa: feita no cliente a partir de `graph.json` (nós do tipo doc), sem backend.
+- Voz: STT (fala→texto) usa Web Speech API (Chrome/Edge). TTS (texto→fala) usa `speechSynthesis`.
+- Atualizações: adicionar/editar ficheiros em `docs/`, atualizar categorias em `categoriasNovas.txt` (opcional) e reconstruir `graph.json`.
+
+Estrutura principal
+- `index.html` — Página principal com o grafo e UI.
+- `voice-assistant.js` — Assistente por voz (botão flutuante, painel, TTS/STT, pesquisa local).
+- `docs/` — Páginas de conteúdo (HTML). São indexadas no `graph.json`.
+- `graph.json` — Índice do grafo (nós e ligações). Inclui docs com `path`, `label`, `tags`, `category`.
+- `scripts/build-graph.cjs` — Script Node que varre `docs/` e gera `graph.json` (usa `categoriasNovas.txt`).
+- `categoriasNovas.txt` — Fonte simples de categorias/subcategorias (opcional, para enriquecer o grafo).
+- `build.bat` — Atalho para gerar `graph.json` a partir do ficheiro de categorias (e conteúdo em `docs/`).
+- `package.json` — Dependências Node usadas no build.
+
+Executar localmente
+- É necessário servir por HTTP para a voz funcionar (evitar `file://`). Exemplos:
+  - Python: `python -m http.server 5500`
+  - Node (uma das opções): `npx http-server -p 5500` ou `npx serve .`
+- Abrir: `http://localhost:5500/`
+
+Assistente por voz (cliente)
+- Funções:
+  - Botão de microfone e painel minimal.
+  - Reconhecimento de voz (Chrome/Edge via `webkitSpeechRecognition`). Fallback para input por texto.
+  - Fala as respostas com `speechSynthesis` em pt‑PT (autoplay requer gesto do utilizador).
+  - Pesquisa local: lê `graph.json`, pontua as páginas e sugere até 3 resultados.
+- Customização rápida (editar `voice-assistant.js`):
+  - Mensagem de boas‑vindas: alterar `greetText`.
+  - Lado do ecrã: a UI está à esquerda (`left: 20px`). Para passar à direita, trocar `left` por `right` em `.va-btn` e `.va-panel`.
+  - Timeout do microfone: ajustar o valor (8s) no `setTimeout` dentro de `onstart`.
+  - Pesquisa: a função `buildPages()` define os campos considerados; `scoreQuery()` define o scoring (insensível a acentos).
+- Compatibilidade e notas:
+  - STT: Chrome/Edge. Safari/Firefox caem para chat por texto.
+  - TTS: funciona em geral; pode usar pt‑BR se a voz pt‑PT não existir no sistema.
+  - Permissões do microfone: conceder no browser para o domínio usado (localhost/HTTPS).
+
+Como adicionar/atualizar documentos
+1) Colocar novos HTMLs em `docs/` (podem ter subpastas). Exemplos: `docs/minha-pagina.html`.
+2) (Opcional mas recomendado) Incluir metadados no HTML para melhor categorização e pesquisa. Por exemplo no `<head>`:
+   - `<meta name="categoria" content="trading">`
+   - `<meta name="subcategoria" content="analise-tecnica">`
+   - `<meta name="tags" content="wyckoff, acumulacao, SOS">`
+   - `<title>Wyckoff Accumulation: ST e SOS</title>`
+3) Reconstruir o índice do grafo (gera/atualiza `graph.json`):
+   - `build.bat` (Windows): `./build.bat` ou `build.bat`
+   - Ou diretamente: `node scripts/build-graph.cjs categoriasNovas.txt`
+4) Testar localmente (HTTP) e verificar se a nova página aparece na pesquisa (assistente e UI do grafo).
+5) Commit e push (ver secção Git).
+
+Atualizar categorias/subcategorias
+- Editar `categoriasNovas.txt` seguindo a estrutura existente (lista de `slug`, `title` e `sub`).
+- Correr o build para refletir no `graph.json`:
+  - `node scripts/build-graph.cjs categoriasNovas.txt`
+- Efeitos: adiciona nós de categoria/subcategoria e ligações no grafo; melhora agrupamento e pesquisa.
+
+Workflow Git sugerido
+- Ver estado: `git status`
+- Adicionar alterações: `git add -A`
+- Commit: `git commit -m "Atualiza docs e graph"`
+- Atualizar remoto: `git push origin main`
+- Dica: criar branches para alterações maiores:
+  - `git checkout -b feature/novo-conteudo`
+  - ...
+  - `git push -u origin feature/novo-conteudo`
+
+Deploy (estático)
+- Pode ser qualquer hosting estático (GitHub Pages, Netlify, Vercel, S3/CloudFront, etc.).
+- Requisitos para a voz:
+  - Servir via HTTP/HTTPS (não `file://`).
+  - Idealmente HTTPS em produção.
+- Publicar os ficheiros da raiz (incluindo `index.html`, `voice-assistant.js`, `graph.json`, pasta `docs/` e assets).
+
+Resolução de problemas
+- Mic fica em “A ouvir…” e não finaliza:
+  - Verificar permissões do microfone para o domínio atual.
+  - Usar Chrome/Edge num separador incógnito com extensões desativadas.
+  - Falar 2–4 palavras e pausar; há timeout automático (~8s) e mensagens de erro no painel.
+- TTS não fala:
+  - Alguns browsers exigem gesto (clique) antes de falar. Clicar no botão do mic ajuda.
+  - A voz pt‑PT pode não existir e cair para pt‑BR (aceitável).
+- Pesquisa fraca para certos termos:
+  - Garantir que a página tem `title`, `tags` e `categoria/subcategoria` (ver metadados acima).
+  - Ajustar `scoreQuery()` para maior peso em certos campos.
+- Avisos de Three.js / 3d-force-graph:
+  - São avisos de depreciação/múltiplas instâncias e não afetam o assistente. Podem ser tratados numa revisão futura da stack 3D.
+- 404 em `favicon.ico`:
+  - Inofensivo. Adicionar um `favicon.ico` se desejado.
+
+Como funciona a pesquisa (por baixo)
+- O `voice-assistant.js` carrega `graph.json` e cria um array de páginas a partir de nós `kind: "doc"`.
+- Para cada doc, considera: `label` (título), `category/categories`, `sublabel`, `tags` e `path`.
+- Normaliza acentos (NFD) e faz correspondência simples por inclusão de termos; sugere até 3 resultados.
+
+Personalização rápida do assistente
+- Mudar lado: editar as regras `.va-btn` e `.va-panel` (left/right).
+- Mensagem inicial: editar `greetText`.
+- Remover TTS: comentar a chamada `speak(reply)`.
+- Forçar texto (sem microfone): substituir o handler do botão por `showPanel()` apenas e remover `startListening()`.
+
+Evolução futura (opcional)
+- Backend `/api/voice-assistant` (Express/Serverless) para respostas mais ricas (OpenAI) e melhor ranking:
+  - Recebe `{ query }`, consulta um índice do site e devolve `{ reply, suggestions }`.
+  - A UI já está preparada para usar o mesmo formato caso seja ligado mais tarde.
+
+Receitas rápidas
+- Adicionar nova página e aparecer na pesquisa:
+  1) Copiar o HTML para `docs/`
+  2) (Opcional) Incluir metas `categoria`, `subcategoria`, `tags`
+  3) `node scripts/build-graph.cjs categoriasNovas.txt`
+  4) Servir localmente e testar
+  5) `git add -A && git commit -m "novo doc" && git push`
+
+- Mudar assistente para a direita:
+  - Em `voice-assistant.js`, trocar `left: 20px;` por `right: 20px;` em `.va-btn` e `.va-panel`.
+
+Contacto e manutenção
+- Código simples e sem dependências no cliente para o assistente.
+- Build do `graph.json` usa Node LTS; se necessário, atualizar dependências em `package.json`.
+
+FIM
